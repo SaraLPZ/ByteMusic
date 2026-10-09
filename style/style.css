@@ -1,0 +1,1200 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Sarina&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+/* Variables globales */
+:root {
+  /* variables globales fuente */
+  --fuente-principal: "Poppins", sans-serif;
+  --fuente-weight: 400px;
+  --fuente-style: normal;
+  --fuente-title-wight: 600px;
+  /* Variables globales... */
+  --color-blanco: white;
+  --color-transparente: transparent;
+  --color-negro: black;
+  /* Variables colores de fondo globales */
+  --color-fondoOscuro: #232026;
+  --color-fondoClaro: #262d47;
+  --color-fondoGris: #2f2a31;
+  --color-fondo-input: #353535;
+  /* Variables de colores de las propiedades de la cancion */
+  --color-circulo-progreso: #10cad5;
+  --color-barra: #1a181c;
+  --color-botonReproducir: #10cad5;
+  /*  */
+  --color-fondoOscuro2: #352740;
+  --color-fondoClaro2: #262d47;
+  --color-fondoGris2: #4d3256;
+  --color-fondo-input2: #353535;
+  /* Variables de colores de las propiedades de la cancion */
+  --color-circulo-progreso2: #121d34;
+  --color-barra2: #4d3462;
+}
+/* Contendor sara prueba y despues mover y reorganizar codigo css */
+
+h4 {
+  font-family: "Sarina", cursive;
+  font-weight: 400;
+  font-style: normal;
+  color: var(--color-botonReproducir) !important;
+}
+/* =====================================================
+   BYTEMUSIC  HEADER
+   ===================================================== */
+
+.bm-header {
+  position: relative;
+  width: 100%;
+  height: 330px;
+  overflow: hidden;
+  background: #17141c;
+  font-family: "Poppins", sans-serif;
+  border-bottom: 1px solid #39333f;
+}
+
+.bm-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 55px;
+  height: 1px;
+  background: #302b35;
+}
+
+.bm-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 55px;
+  height: 1px;
+  background: #302b35;
+}
+
+.bm-header-top {
+  position: absolute;
+  top: 20px;
+  left: 35px;
+  right: 35px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 5;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #77717d;
+}
+
+.bm-header-top span:first-child {
+  color: #10cad5;
+  font-weight: 600;
+}
+
+.bm-header-line {
+  width: 100px;
+  height: 1px;
+  background: #514957;
+}
+
+.bm-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 56px;
+  bottom: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  opacity: 0.28;
+}
+
+.bm-wave span {
+  display: block;
+  width: 3px;
+  border-radius: 5px;
+  background: #10cad5;
+}
+
+/* Forma de la wave */
+.bm-wave span:nth-child(1) {
+  height: 10px;
+}
+.bm-wave span:nth-child(2) {
+  height: 20px;
+}
+.bm-wave span:nth-child(3) {
+  height: 35px;
+}
+.bm-wave span:nth-child(4) {
+  height: 55px;
+}
+.bm-wave span:nth-child(5) {
+  height: 80px;
+}
+.bm-wave span:nth-child(6) {
+  height: 110px;
+}
+.bm-wave span:nth-child(7) {
+  height: 75px;
+}
+.bm-wave span:nth-child(8) {
+  height: 135px;
+}
+.bm-wave span:nth-child(9) {
+  height: 100px;
+}
+
+.bm-wave span:nth-child(10) {
+  height: 160px;
+  background: #884ac7;
+}
+
+.bm-wave span:nth-child(11) {
+  height: 120px;
+}
+.bm-wave span:nth-child(12) {
+  height: 90px;
+}
+
+.bm-wave span:nth-child(13) {
+  height: 145px;
+  background: #e94f9f;
+}
+
+.bm-wave span:nth-child(14) {
+  height: 175px;
+}
+.bm-wave span:nth-child(15) {
+  height: 125px;
+}
+.bm-wave span:nth-child(16) {
+  height: 95px;
+}
+
+.bm-wave span:nth-child(17) {
+  height: 150px;
+  background: #884ac7;
+}
+
+.bm-wave span:nth-child(18) {
+  height: 185px;
+}
+.bm-wave span:nth-child(19) {
+  height: 140px;
+}
+.bm-wave span:nth-child(20) {
+  height: 100px;
+}
+
+.bm-wave span:nth-child(21) {
+  height: 160px;
+  background: #10cad5;
+}
+
+.bm-wave span:nth-child(22) {
+  height: 180px;
+}
+.bm-wave span:nth-child(23) {
+  height: 130px;
+}
+.bm-wave span:nth-child(24) {
+  height: 85px;
+}
+
+.bm-wave span:nth-child(25) {
+  height: 150px;
+  background: #e94f9f;
+}
+
+.bm-wave span:nth-child(26) {
+  height: 175px;
+}
+.bm-wave span:nth-child(27) {
+  height: 120px;
+}
+.bm-wave span:nth-child(28) {
+  height: 90px;
+}
+
+.bm-wave span:nth-child(29) {
+  height: 145px;
+  background: #884ac7;
+}
+
+.bm-wave span:nth-child(30) {
+  height: 180px;
+}
+.bm-wave span:nth-child(31) {
+  height: 135px;
+}
+.bm-wave span:nth-child(32) {
+  height: 100px;
+}
+
+.bm-wave span:nth-child(33) {
+  height: 155px;
+  background: #10cad5;
+}
+
+.bm-wave span:nth-child(34) {
+  height: 175px;
+}
+.bm-wave span:nth-child(35) {
+  height: 125px;
+}
+.bm-wave span:nth-child(36) {
+  height: 80px;
+}
+
+.bm-wave span:nth-child(37) {
+  height: 140px;
+  background: #e94f9f;
+}
+
+.bm-wave span:nth-child(38) {
+  height: 165px;
+}
+.bm-wave span:nth-child(39) {
+  height: 115px;
+}
+.bm-wave span:nth-child(40) {
+  height: 75px;
+}
+
+.bm-wave span:nth-child(41) {
+  height: 130px;
+  background: #884ac7;
+}
+
+.bm-wave span:nth-child(42) {
+  height: 150px;
+}
+.bm-wave span:nth-child(43) {
+  height: 100px;
+}
+.bm-wave span:nth-child(44) {
+  height: 65px;
+}
+.bm-wave span:nth-child(45) {
+  height: 45px;
+}
+.bm-wave span:nth-child(46) {
+  height: 30px;
+}
+.bm-wave span:nth-child(47) {
+  height: 20px;
+}
+.bm-wave span:nth-child(48) {
+  height: 12px;
+}
+
+/* Titulo en el centro y texto en pequeño*/
+.bm-title {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  min-width: 500px;
+  background: #17141c;
+  padding: 25px 45px;
+}
+
+.bm-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #10cad5;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 5px;
+}
+
+.bm-kicker-line {
+  width: 35px;
+  height: 1px;
+  background: #10cad5;
+}
+
+.bm-title h1 {
+  margin: 8px 0 5px;
+  font-size: clamp(50px, 7vw, 88px);
+  font-weight: 800;
+  letter-spacing: 7px;
+  line-height: 1;
+  color: white !important;
+}
+
+.bm-title p {
+  margin: 15px 0 0;
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: #8c8791;
+}
+
+.bm-header-bottom {
+  position: absolute;
+  bottom: 18px;
+  left: 35px;
+  right: 35px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  color: #68626d;
+  font-size: 8px;
+  letter-spacing: 2px;
+}
+
+.bm-header-bottom i {
+  margin-right: 6px;
+  color: #10cad5;
+  font-size: 13px;
+}
+
+.bm-header-bottom span:nth-child(2) {
+  color: #e94f9f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bm-header {
+    height: 260px;
+  }
+
+  .bm-title {
+    min-width: 0;
+    width: 90%;
+    padding: 20px;
+  }
+
+  .bm-title h1 {
+    font-size: 42px;
+    letter-spacing: 4px;
+  }
+
+  .bm-wave {
+    gap: 4px;
+    opacity: 0.18;
+  }
+
+  .bm-wave span {
+    width: 2px;
+  }
+
+  .bm-header-bottom span:first-child,
+  .bm-header-bottom span:last-child {
+    display: none;
+  }
+
+  .bm-header-bottom {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 500px) {
+  .bm-header {
+    height: 220px;
+  }
+
+  .bm-title h1 {
+    font-size: 32px;
+    letter-spacing: 3px;
+  }
+
+  .bm-kicker {
+    font-size: 7px;
+    letter-spacing: 3px;
+  }
+
+  .bm-title p {
+    font-size: 7px;
+    letter-spacing: 3px;
+  }
+
+  .bm-wave {
+    opacity: 0.12;
+  }
+
+  .bm-header-top {
+    left: 15px;
+    right: 15px;
+    font-size: 7px;
+  }
+
+  .bm-header-top span:last-child {
+    display: none;
+  }
+}
+/* Boton añadir al aldo de my playlist */
+.playlist-header {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.playlist-header h2 {
+  margin-left: 40px;
+  margin-top: 30px;
+}
+
+#boton-anadir {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #10cad5;
+  border-radius: 50%;
+  background: transparent;
+  color: #10cad5;
+  cursor: pointer;
+  margin-top: 30px;
+  font-size: 18px;
+  transition: 0.2s ease;
+}
+
+#boton-anadir:hover {
+  background: #10cad5;
+  color: #17141c;
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(16, 202, 213, 0.4);
+}
+
+#boton-anadir i {
+  pointer-events: none;
+}
+
+#contenedorImgTitle {
+  background-color: var(--color-transparente);
+  width: 400px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+#contenedorImgTitle img {
+  margin-top: 5px;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  margin-left: 30px;
+}
+
+#titulo-artista {
+  overflow: hidden; /* Evita que el texto salga de su contenedor  #3f101d;*/
+  display: flex;
+  flex-direction: column;
+  color: white;
+  width: 100%;
+  height: 60px;
+  background-color: var(--color-transparente);
+}
+/* Estilo del titulo de la cancion */
+#titulo-artista h6 {
+  font-family: var(--fuente-principal);
+  white-space: nowrap;
+  background-color: transparent;
+  margin-left: 20px;
+  margin-top: 8px;
+  color: var(--color-blanco);
+}
+#titulo-artista #nombre {
+  background-color: transparent;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: var(--fuente-principal);
+  margin-left: 20px;
+  color: grey !important;
+  margin-bottom: 5px;
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden; /* Oculta el texto que sobresale */
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+.titulo-container {
+  padding-right: 20px;
+  background-color: transparent;
+  width: 100%;
+  overflow: hidden; /* Evita que el texto sobresalga */
+  position: relative;
+}
+/* Animacion del titulo de la cancion desplazamiento*/
+
+/* Clase que activa la animación solo si el texto es largo */
+.scroll {
+  animation:
+    scrollText 10s linear infinite,
+    pauseText 7s infinite;
+}
+#lopez {
+  background-color: var(--color-transparente);
+  flex: 1;
+  float: left;
+}
+
+body {
+  overflow-x: hidden;
+}
+h1 {
+  font-family: var(--fuente-principal);
+  font-weight: var(--fuente-title-wight);
+  font-style: var(--fuente-style);
+  color: #10cad5 !important;
+}
+/* ul con id playlist-container */
+#playlist-container {
+  padding-top: 30px;
+  padding-bottom: 150px;
+  padding-right: 30px;
+  max-height: auto;
+  background-color: transparent;
+  overflow-y: auto;
+  color: white;
+  font-family: var(--fuente-principal);
+  font-weight: var(--fuente-weight);
+  font-style: var(--fuente-style);
+}
+
+/* li este seleccionado */
+#playlist-container li.active {
+  color: #10cad5; /*
+    background-color: rgb(88, 88, 88); */
+}
+
+li {
+  list-style: none;
+  background-color: transparent;
+  border-radius: 10px 10px 10px 10px;
+  cursor: pointer;
+}
+
+li:hover {
+  background-color: #085f70;
+}
+
+/* ---------------------Todo lo que tiene que ver con el menu lateral (desabilitado)------------------------ */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 100vh;
+  background-color: #17141c;
+  border-right: 1px solid #39333f;
+  padding: 25px 15px;
+  z-index: 1000;
+  font-family: var(--fuente-principal);
+}
+
+.sidebar-logo {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.sidebar-logo h4 {
+  margin: 0;
+}
+
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.sidebar-title {
+  display: block;
+  margin: 0 10px 10px;
+  color: #68626d;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.sidebar-item i {
+  color: #10cad5;
+  font-size: 18px;
+}
+
+.sidebar-item:hover {
+  background-color: #2f2a31;
+  color: #10cad5;
+}
+
+.sidebar-playlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-playlist-header .sidebar-title {
+  margin-bottom: 10px;
+}
+
+#crear-playlist {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #10cad5;
+  border-radius: 50%;
+  background: transparent;
+  color: #10cad5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#crear-playlist:hover {
+  background-color: #10cad5;
+  color: #17141c;
+}
+
+/* Navbar lateral fijo */
+
+/* ALERTAS Y CARDS */
+
+.card-container {
+  color: black;
+  background-color: white;
+  border-radius: 10px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050; /* Asegura que la tarjeta esté por encima de otros elementos */
+}
+
+.bi-check-circle {
+  font-size: 50px;
+  margin-left: 100px;
+  color: #884ac7;
+}
+.card-container .btn-primary {
+  background-color: #884ac7;
+  border-color: #884ac7;
+}
+.card-container .btn-primary:hover {
+  background-color: #b888e8;
+  border-color: #b888e8;
+}
+
+/* -------- **************** Todo el contenido de la playslist y demas cosas ***********------------ */
+.content {
+  margin-left: 240px;
+  padding: 20px;
+  color: var(--color-blanco);
+  background-color: var(--color-fondoOscuro);
+  position: relative;
+  min-height: 100vh;
+  /* Para que el alto sea lo que ocupe la pantalla independientemente de su altura */
+}
+
+/* Contenedor de input seleccionar archivos */
+.selector-archivos {
+  text-align: center;
+  background-color: var(--color-transparente);
+}
+.texto-download {
+  margin-top: 40px;
+  font-family: var(--fuente-principal);
+}
+#musica-input {
+  border-radius: 25px;
+  color: transparent; /* Hacemos el texto invisible */
+  text-align: center;
+  display: none;
+}
+/* Estilos personalizados para el label */
+.custom-file-upload {
+  cursor: pointer;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 25px;
+  text-align: center;
+  font-size: 16px;
+}
+
+#imagenDownload {
+  width: 100px;
+  height: 100px;
+}
+.selector-musica label {
+  background-color: var(--color-fondo-input);
+  border-radius: 6px;
+  height: 200px;
+  width: 70%;
+  border: 2px dashed #ddd;
+}
+.addCorrect {
+  display: none;
+}
+.repetir {
+  border-radius: 50px;
+}
+.atras:hover {
+  cursor: pointer;
+  color: var(--color-botonReproducir);
+}
+/* ACtivar los li cuando se reproducza */
+.aleatorio.active,
+.repetir.active {
+  color: var(--color-botonReproducir);
+}
+.aleatorio:hover {
+  color: var(--color-botonReproducir);
+  cursor: pointer;
+}
+.adelante:hover {
+  color: var(--color-botonReproducir);
+  cursor: pointer;
+}
+.repetir:hover {
+  color: var(--color-botonReproducir);
+  cursor: pointer;
+}
+/* Imagen estilos */
+
+img {
+  padding: 8px;
+  width: 20px;
+  height: 20px;
+}
+
+#playlist-container img.active {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px 10px 10px 10px;
+}
+
+#playlist-vacia {
+  list-style: none;
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  font-size: 16px;
+}
+
+/*------ Todo la reproduccion de la musica con rango botones de interacciones y titulo con artista----------*/
+
+#contenedorNombreAll {
+  background-color: var(--color-barra);
+  color: var(--color-blanco);
+  position: fixed;
+  bottom: 0;
+  z-index: 1000;
+  transform: translateX(-50%);
+  width: 100%;
+  left: 50%;
+  display: flex; /* para que se aplique que el #sara se vaya a la izq */
+  box-shadow: 0px -6px 6px -2px rgba(0, 0, 0, 1); /* Sombra en la parte superior */
+}
+
+/* Contenedor de los controles y el tiempo que se muestre */
+#contenedorControles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+#minutos {
+  font-size: 15px;
+  font-family: var(--fuente-principal);
+  background-color: var(--color-transparente);
+  padding-bottom: 1%;
+  position: absolute;
+  left: 0;
+  margin: 2%;
+}
+#cotenedorVolumen {
+  background-color: transparent;
+  float: left;
+  margin-right: 2%;
+  display: flex;
+  align-items: center;
+}
+
+/* Contenedor bootnes posiscion */
+#contenedorBotones {
+  background-color: var(--color-transparente);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  margin-right: 15%;
+}
+.texto-download-movil {
+  display: none;
+}
+
+/* .btn-info{
+    background-color: var(--color-blanco) !important;
+    border-color: var(--color-blanco) !important;
+    
+} */
+.iconoControl {
+  color: var(--color-botonReproducir);
+  font-size: 30px;
+  background-color: transparent;
+}
+.iconoControl:hover {
+  cursor: pointer;
+  color: #3f86b3;
+}
+
+/* rango de la cancion */
+
+#contenedorRango {
+  width: 100%;
+  background-color: transparent;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#progreso {
+  -webkit-appearance: none; /* Eliminar estilos por defecto en Chrome y Safari */
+  width: 100%;
+  height: 5px; /* Altura del track */
+  background: #ddd;
+  border-radius: 5px;
+  outline: none; /* Bordes redondeados */
+}
+/* Estilo del thumb para Firefox */
+#progreso::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--color-circulo-progreso);
+  border-radius: 50%;
+  cursor: pointer;
+}
+/* Thumb para navegadores basados en WebKit/Blink (Opera, Chrome, Edge) */
+#progreso::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; /* Tamaño reducido del thumb */
+  height: 14px;
+  background: var(--color-circulo-progreso);
+  border-radius: 50%;
+  cursor: pointer;
+}
+/* control volumen estilos */
+#control-volumen {
+  margin-top: 3px;
+  height: 5px;
+  -moz-appearance: none;
+  background: var(--color-fondoOscuro);
+  -webkit-appearance: none; /* Elimina estilos por defecto en Chrome, Safari y Opera */
+  appearance: none; /* Elimina estilos por defecto en otros navegadores */
+  border-radius: 5px;
+  outline: none;
+  background: linear-gradient(to right, #fffafa 100%, #3b3b3b 0%);
+}
+#control-volumen:hover,
+#progreso {
+  cursor: pointer;
+}
+
+/* Estilo del thumb para WebKit (Chrome, Safari, Opera, Edge) */
+#control-volumen::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: #6e6e6e;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Thumb para Firefox */
+#control-volumen::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #6e6e6e;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+/* Estilo para Edge */
+#control-volumen::-ms-thumb {
+  width: 10px;
+  height: 10px;
+  background: #6e6e6e;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Animacion para cargar la cancion que est reproduciendo */
+
+/* HTML: <div class="loader"></div> */
+/* HTML: <div class="loader"></div> */
+.loader {
+  margin-left: 50px;
+  position: absolute;
+  margin-top: 0px;
+  margin-right: 100px;
+  display: inline-block;
+  width: 20px;
+  height: 25px !important;
+  --c: linear-gradient(#10cad5 0 0);
+  background:
+    var(--c) 0% 100%,
+    var(--c) 50% 100%,
+    var(--c) 100% 100%;
+  background-size: 4px 100%;
+  background-repeat: no-repeat;
+  animation: bars-mbi2jdmd 1s infinite linear;
+}
+
+@keyframes bars-mbi2jdmd {
+  20% {
+    background-size:
+      4px 50%,
+      4px 100%,
+      4px 100%;
+  }
+
+  40% {
+    background-size:
+      4px 80%,
+      4px 50%,
+      4px 100%;
+  }
+
+  60% {
+    background-size:
+      4px 100%,
+      4px 80%,
+      4px 50%;
+  }
+
+  80% {
+    background-size:
+      4px 100%,
+      4px 100%,
+      4px 80%;
+  }
+}
+
+/* Animacion del titulo de la cancion despla*/
+@keyframes scrollText {
+  0%,
+  20% {
+    transform: translateX(0%);
+  } /* Se queda quieto por 2s */
+  80% {
+    transform: translateX(-100%);
+  } /* Se mueve a la izquierda */
+  100% {
+    transform: translateX(-100%);
+  } /* Pausa al final */
+}
+/* Controla la pausa al final */
+@keyframes pauseText {
+  0% {
+    opacity: 2;
+  }
+  80% {
+    opacity: 2;
+  }
+  90% {
+    opacity: 2;
+  }
+  100% {
+    opacity: 2;
+  }
+}
+/* AJUSTEEEEE DE PANTALLLAASSSSSS pantalla */
+/* Hacer que la sidebar se oculte en pantallas pequeñas */
+@media (max-width: 1000px) {
+  .sidebar {
+    width: 70px;
+    position: fixed;
+    display: block;
+    padding: 25px 10px;
+  }
+
+  .content {
+    margin-left: 40px;
+  }
+  /* que el volumen sea mas pequeño */
+  .sidebar-title,
+  .sidebar-item span,
+  .sidebar-playlist-header .sidebar-title {
+    display: none;
+  }
+  .sidebar-item {
+    justify-content: center;
+    padding: 10px 0;
+  }
+  /* Iconos del menú */
+  .sidebar-item i {
+    font-size: 22px;
+  }
+
+  /* Logo */
+  .sidebar-logo h4 {
+    font-size: 0;
+  }
+  /* Botón + */
+  #crear-playlist {
+    margin: 0 auto;
+  }
+}
+
+/* 750cambios */
+@media (max-width: 576px) {
+  #cotenedorVolumen {
+    display: none;
+  }
+  /* que el label de descarga sea mas pequeño */
+  #musica-input2 {
+    height: 70px;
+  }
+  #contenedorControles {
+    background-color: var(--color-transparente);
+  }
+  #contenedorBotones {
+    margin-left: 15%;
+    background-color: var(--color-transparente);
+  }
+  #musica-input2 img {
+    display: none;
+  }
+  .texto-download {
+    display: none;
+  }
+  .texto-download-movil {
+    margin-top: 3%;
+    display: block;
+  }
+  li {
+    display: flex;
+    position: relative;
+  }
+  li span {
+    margin-top: 5%;
+    white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+    overflow: hidden; /* Esconde el texto que se desborda */
+    text-overflow: ellipsis; /* Añade "..." al final si el texto es demasiado largo */
+  }
+  /* Hacer que el contenido sea completamente responsivo */
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  #reproductor-musica {
+    font-size: 0.9rem;
+  }
+
+  #contenedorControles button {
+    font-size: 1rem;
+    padding: 8px;
+  }
+
+  /* Reducir tamaño de la imagen en el selector */
+  #imagenDownload {
+    max-width: 50px;
+    max-height: 50px;
+  }
+
+  /* Ajustar el reproductor a la pantalla */
+  #cancion {
+    width: 100%;
+  }
+}
+/* Eliminar fondo blanco en dispositivos móviles */
+@media (max-width: 768px) {
+  .content {
+    background-color: var(--color-fondoOscuro); /* No blanco */
+  }
+}
+/* Para pantallas más pequeñas (menor a 576px) */
+@media (max-width: 576px) {
+  .content {
+    background-color: var(
+      --color-fondoOscuro
+    ); /* Asegurando que no tenga fondo blanco */
+  }
+}
+/* Alinear correctamente los elementos de cada canción */
+#playlist-container li {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Imagen */
+#playlist-container li img {
+  flex-shrink: 0;
+}
+
+/* Nombre de la canción */
+#playlist-container li span {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding-left: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botón borrar */
+#playlist-container li button {
+  flex-shrink: 0;
+}
+
+/* Botón de las tres líneas */
+.boton-mover {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #77717d;
+  font-size: 20px;
+  cursor: grab;
+  user-select: none;
+  transition: 0.2s ease;
+}
+
+.boton-mover:hover {
+  color: #10cad5;
+}
+
+.boton-borrar {
+  color: #77717d;
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+.boton-borrar:hover {
+  color: red;
+}

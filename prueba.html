@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ByteMusic - Prueba</title>
+  </head>
+
+  <body>
+    <h1>ByteMusic</h1>
+
+    <p id="estado">Cargando biblioteca...</p>
+
+    <input type="file" id="selectorMusica" accept=".mp3,audio/mpeg" multiple />
+
+    <h2>Mi música</h2>
+
+    <div id="biblioteca"></div>
+
+    <script>
+      // ==========================================
+      // ABRIR / CREAR BASE DE DATOS
+      // ==========================================
+
+      let db;
+
+      const request = indexedDB.open("ByteMusicDB", 1);
+
+      request.onupgradeneeded = function (event) {
+        db = event.target.result;
+
+        if (!db.objectStoreNames.contains("canciones")) {
+          db.createObjectStore("canciones", {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+        }
+      };
+
+      request.onsuccess = function (event) {
+        db = event.target.result;
+
+        console.log("Base de datos abierta");
+
+        cargarBiblioteca();
+      };
+
+      request.onerror = function () {
+        document.getElementById("estado").textContent =
+          "Error al abrir la biblioteca.";
+      };
+
+      // ==========================================
+      // CARGAR BIBLIOTECA
+      // ==========================================
+
+      function cargarBiblioteca() {
+        document.getElementById("estado").textContent =
+          "Cargando biblioteca...";
+
+        const transaction = db.transaction(["canciones"], "readonly");
+
+        const store = transaction.objectStore("canciones");
+
+        const request = store.getAll();
+
+        request.onsuccess = function () {
+          const canciones = request.result;
+
+          mostrarCanciones(canciones);
+
+          document.getElementById("estado").textContent =
+            canciones.length + " canciones en tu biblioteca.";
+        };
+      }
+
+      // ==========================================
+      // MOSTRAR CANCIONES
+      // ==========================================
+
+      function mostrarCanciones(canciones) {
+        const biblioteca = document.getElementById("biblioteca");
+
+        biblioteca.innerHTML = "";
+
+        if (canciones.length === 0) {
+          biblioteca.innerHTML = "<p>No tienes canciones todavía.</p>";
+
+          return;
+        }
+
+        canciones.forEach(function (cancion) {
+          const contenedor = document.createElement("div");
+
+          const nombre = document.createElement("p");
+
+          nombre.textContent = cancion.nombre;
+
+          const audio = document.createElement("audio");
+
+          audio.controls = true;
+
+          // Crear URL temporal para reproducir el MP3
+          audio.src = URL.createObjectURL(cancion.archivo);
+
+          contenedor.appendChild(nombre);
+          contenedor.appendChild(audio);
+
+          biblioteca.appendChild(contenedor);
+        });
+      }
+
+      // ==========================================
+      // AÑADIR MP3
+      // ==========================================
+
+      document
+        .getElementById("selectorMusica")
+        .addEventListener("change", function (event) {
+          const archivos = event.target.files;
+
+          if (!archivos.length) {
+            return;
+          }
+
+          const transaction = db.transaction(["canciones"], "readwrite");
+
+          const store = transaction.objectStore("canciones");
+
+          Array.from(archivos).forEach(function (archivo) {
+            store.add({
+              nombre: archivo.name,
+
+              archivo: archivo,
+
+              fecha: new Date(),
+            });
+          });
+
+          transaction.oncomplete = function () {
+            console.log("Canciones guardadas correctamente");
+
+            cargarBiblioteca();
+          };
+        });
+    </script>
+  </body>
+</html>

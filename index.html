@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reproductor de musica</title>
+    <link rel="stylesheet" href="style/style.css" />
+    <link
+      rel="shortcut icon"
+      href="img/file-music-fill.svg"
+      type="image/x-icon" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.4/lottie.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+  </head>
+  <body>
+    <!-- NAV LATERAL -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <h4>BM</h4>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-title">MENÚ</span>
+
+        <a href="#" class="sidebar-item">
+          <i class="bi bi-house"></i>
+          <span>Inicio</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-playlist-header">
+          <span class="sidebar-title">PLAYLISTS</span>
+
+          <button id="crear-playlist" type="button">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </div>
+
+        <div id="lista-playlists">
+          <a href="#" class="sidebar-item">
+            <i class="bi bi-music-note-list"></i>
+            <span>Mi playlist</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="content">
+      <!-- Tarjeta centrada en la pantalla con un botón para cerrar -->
+      <div
+        id="tarjetaExito"
+        class="card-container bg-color-primary"
+        style="display: none">
+        <div class="alert" style="max-width: 18rem">
+          <i class="bi bi-check-circle"></i>
+          <div class="card-header d-flex justify-content-center">
+            <h4 class="alert-heading">Éxito</h4>
+          </div>
+          <div class="card-body justify-content-center mx-auto text-center">
+            <p class="card-title">
+              Las canciones se han descargado correctamente
+            </p>
+          </div>
+          <div class="card-button d-flex justify-content-center">
+            <button
+              type="button"
+              class="btn btn-primary px-5 mt-4 rounded-5 fs-5"
+              onclick="cerrarTarjeta()">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- ******************* -->
+      <header class="bm-header">
+        <!-- Información superior -->
+        <div class="bm-header-top">
+          <span>BYTE / MUSIC</span>
+          <span class="bm-header-line"></span>
+          <span>DIGITAL AUDIO PLAYER</span>
+        </div>
+
+        <!-- Waveform -->
+        <div class="bm-wave">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="bm-title">
+          <div class="bm-kicker">
+            <span class="bm-kicker-line"></span>
+            LISTEN DIFFERENT
+            <span class="bm-kicker-line"></span>
+          </div>
+
+          <h1>BYTEMUSIC</h1>
+
+          <p>MUSIC WITHOUT LIMITS</p>
+        </div>
+
+        <!-- Información inferior -->
+        <div class="bm-header-bottom">
+          <span>
+            <i class="bi bi-soundwave"></i>
+            HIGH QUALITY AUDIO
+          </span>
+
+          <span>SARA LOPEZ</span>
+
+          <span>
+            <i class="bi bi-vinyl"></i>
+            YOUR MUSIC
+          </span>
+        </div>
+      </header>
+      <section id="reproductor-musica">
+        <div class="selector-archivos">
+          <!-- <div class="selector selector-fondo">
+          <label for="fondo-input">Background</label>
+          <input id="fondo-input" type="file" accept="image/*">
+        </div> -->
+        </div>
+        <div class="playlist">
+          <div class="playlist-header">
+            <h2>Mi playlist</h2>
+
+            <label for="musica-input" id="boton-anadir">
+              <i class="bi bi-plus-lg"></i>
+            </label>
+            <input
+              id="musica-input"
+              type="file"
+              multiple
+              accept="audio/mpeg, audio/wav, audio/mp3, audio/ogg, audio/aac" />
+          </div>
+
+          <ul id="playlist-container">
+            <li id="playlist-vacia">
+              Todavía no has añadido nada a la playlist
+            </li>
+          </ul>
+        </div>
+        <!-- Nombre cancion  y artista-->
+        <div id="contenedorNombreAll">
+          <div id="contenedorImgTitle">
+            <img
+              src="https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg"
+              alt="imagen de la cancion" />
+            <div id="titulo-artista">
+              <div class="titulo-container">
+                <h6 id="titulo-cancion">Titulo</h6>
+              </div>
+              <div id="nombre">Nombre</div>
+            </div>
+          </div>
+          <div id="lopez">
+            <!-- 
+            <h5>Titulo</h5>
+            <h6>Nombre</h6> -->
+
+            <audio src="" id="cancion">
+              <source src="" type="audio/mpeg" />
+              <source src="" type="audio/wav" />
+            </audio>
+            <div id="contenedorRango">
+              <input type="range" value="0" id="progreso" />
+              <!-- <div class="value" id="sliderValue">munitos musica</div> -->
+            </div>
+            <div id="contenedorControles">
+              <div id="minutos"></div>
+              <div id="cotenedorVolumen">
+                <!-- Icono volumen -->
+                <i class="bi bi-volume-down-fill fs-4"></i>
+                <!-- Input del volumen -->
+                <input
+                  type="range"
+                  id="control-volumen"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="1" />
+              </div>
+              <div id="contenedorBotones">
+                <!-- boton aleatorio -->
+                <i class="bi bi-shuffle iconoAleatorio aleatorio control"></i>
+                <!-- botón atras -->
+                <i class="bi bi-rewind atras control"></i>
+                <!-- icono reproducir pausar -->
+                <i
+                  class="bi bi-play-circle-fill iconoControl boton-reproducir-pausar"></i>
+                <!-- boton adelante -->
+                <i class="bi bi-fast-forward adelante control"></i>
+                <!-- Boton repetir -->
+                <i class="bi bi-repeat iconoRepetir repetir control"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <br />
+      <!-- <h2>Contenido Principal</h2>
+      <p>Este es el espacio principal donde va el contenido. El navbar se mantiene fijo a la izquierda.</p>
+      <p>Desplázate para ver que el navbar no se mueve.</p>
+      <p style="height: 1000px;">(Espacio para hacer scroll y probar el navbar fijo)</p> -->
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+Instalar bootstrap por consola
