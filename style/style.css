@@ -43,45 +43,88 @@ h4 {
   top: 0;
   left: 0;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
   width: 240px;
   height: 100vh;
-  padding: 25px 15px;
-  background: #17141c;
-  border-right: 1px solid #39333f;
+  padding: 24px 14px;
+  background: linear-gradient(180deg, #1a1620 0%, #141118 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   font-family: var(--fuente-principal);
 }
 
+/* ----- Logo ----- */
 .sidebar-logo {
-  margin-bottom: 40px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 0 8px;
+}
+
+.logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #10cad5, #7c5cff);
+  color: #0e0c12;
+  font-size: 20px;
+  box-shadow: 0 6px 16px rgba(16, 202, 213, 0.3);
 }
 
 .sidebar-logo h4 {
   margin: 0;
+  font-family: var(--fuente-principal);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff !important;
 }
 
+.sidebar-logo h4 span {
+  color: #10cad5;
+}
+
+/* ----- Secciones ----- */
 .sidebar-section {
-  margin-bottom: 30px;
+  margin-bottom: 26px;
+}
+
+/* La sección de playlists ocupa el resto y hace scroll si hace falta */
+.sidebar-section:last-child {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  margin-bottom: 0;
 }
 
 .sidebar-title {
   display: block;
-  margin: 0 10px 10px;
-  color: #68626d;
-  font-size: 10px;
+  margin: 0 10px 12px;
+  color: #6f6779;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 0.14em;
 }
 
+/* ----- Elementos del menú ----- */
 .sidebar-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  margin-bottom: 5px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: #ffffff;
+  margin-bottom: 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  color: #c9c2d3;
+  font-size: 0.92rem;
+  font-weight: 500;
   text-decoration: none;
   transition:
     background-color 0.2s ease,
@@ -89,24 +132,61 @@ h4 {
 }
 
 .sidebar-item i {
-  color: #10cad5;
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #a79fb2;
+  font-size: 17px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.sidebar-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-item:hover {
-  background: #2f2a31;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.sidebar-item:hover i {
+  background: rgba(16, 202, 213, 0.15);
   color: #10cad5;
 }
 
+/* Elemento activo */
 .sidebar-item.active {
-  background: rgba(136, 74, 199, 0.2);
+  background: rgba(16, 202, 213, 0.1);
   color: #ffffff;
 }
 
 .sidebar-item.active i {
-  color: #b58aff;
+  background: #10cad5;
+  color: #0e0c12;
 }
 
+.sidebar-item.active::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 22px;
+  transform: translateY(-50%);
+  border-radius: 0 3px 3px 0;
+  background: #10cad5;
+}
+
+/* ----- Cabecera de playlists ----- */
 .sidebar-playlist-header {
   display: flex;
   align-items: center;
@@ -114,28 +194,50 @@ h4 {
 }
 
 .sidebar-playlist-header .sidebar-title {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 #crear-playlist {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #10cad5;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 12px;
+  border: 1px solid #3a3342;
   border-radius: 50%;
   background: transparent;
-  color: #10cad5;
+  color: #a79fb2;
+  font-size: 13px;
   cursor: pointer;
   transition:
     background-color 0.2s ease,
+    border-color 0.2s ease,
     color 0.2s ease;
 }
 
 #crear-playlist:hover {
+  border-color: #10cad5;
   background: #10cad5;
-  color: #17141c;
+  color: #0e0c12;
+}
+
+/* ----- Lista de playlists con scroll propio ----- */
+#lista-playlists {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3342 transparent;
+}
+
+#lista-playlists::-webkit-scrollbar {
+  width: 6px;
+}
+
+#lista-playlists::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: #3a3342;
 }
 
 /* =====================================================
@@ -942,13 +1044,10 @@ h4 {
 /* =====================================================
    12. RESPONSIVE
 ===================================================== */
-
-/* Tablet: barra lateral compacta */
 @media (max-width: 1000px) {
   .sidebar {
-    display: block;
     width: 70px;
-    padding: 25px 10px;
+    padding: 20px 10px;
   }
 
   .content {
@@ -956,87 +1055,22 @@ h4 {
   }
 
   .sidebar-title,
-  .sidebar-item span {
+  .sidebar-item span,
+  .sidebar-logo h4 {
     display: none;
+  }
+
+  .sidebar-logo {
+    justify-content: center;
+    padding: 0;
   }
 
   .sidebar-item {
     justify-content: center;
-    padding: 10px 0;
+    padding: 6px 0;
   }
 
-  .sidebar-item i {
-    font-size: 22px;
-  }
-
-  .sidebar-logo h4 {
-    font-size: 0;
-  }
-
-  #crear-playlist {
-    margin: 0 auto;
-  }
-}
-
-/* Móvil */
-@media (max-width: 640px) {
-  .pl-hero {
-    flex-direction: column;
-    align-items: center;
-    padding: 28px 20px;
-    text-align: center;
-  }
-
-  .pl-cover {
-    width: 160px;
-    height: 160px;
-  }
-
-  .pl-meta,
-  .pl-actions {
+  .sidebar-playlist-header {
     justify-content: center;
-  }
-
-  .pl-actions {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 576px) {
-  #cotenedorVolumen {
-    display: none;
-  }
-
-  #contenedorBotones {
-    margin-left: 15%;
-  }
-
-  #playlist-container li span {
-    margin-top: 5%;
-  }
-
-  #reproductor-musica {
-    font-size: 0.9rem;
-  }
-
-  #cancion {
-    width: 100%;
-  }
-
-  #modalCrearPlaylist .modal-header {
-    padding: 22px 20px 6px;
-  }
-
-  #modalCrearPlaylist .modal-body {
-    padding: 14px 20px 8px;
-  }
-
-  #modalCrearPlaylist .modal-footer {
-    flex-direction: column-reverse;
-    padding: 10px 20px 22px;
-  }
-
-  #modalCrearPlaylist .modal-footer .btn {
-    width: 100%;
   }
 }
