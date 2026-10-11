@@ -2,26 +2,42 @@
    1. CONFIGURACIÓN DE INDEXEDDB
 ======================================== */
 
-// Configuración de la base de datos
 const DB_NAME = "ByteMusicDB";
 const DB_VERSION = 2;
 const STORE_NAME = "canciones";
 const PLAYLIST_STORE_NAME = "playlists";
 
-// Variables globales de la aplicación
-let db;
-let canciones = [];
-let playlists = [];
-let playlistActual = "default";
+/* ========================================
+   ESTADO DE LA APLICACIÓN
+======================================== */
 
-// Abrir la base de datos
+let db;
+let playlists = [];
+
+// Playlist que estás VIENDO en pantalla y sus canciones
+let playlistActual = "default";
+let canciones = [];
+
+// Playlist que está SONANDO y sus canciones (cola de reproducción)
+let cola = [];
+let playlistReproduciendo = null;
+let indiceCancionActual = 0; // posición dentro de la cola
+
+// Modos del reproductor
+let modoAleatorio = false;
+let modoRepetir = false;
+
+/* ========================================
+   ABRIR LA BASE DE DATOS
+======================================== */
+
 const request = indexedDB.open(DB_NAME, DB_VERSION);
-// Crear o actualizar la estructura de la base de datos
+
 request.onupgradeneeded = (event) => {
   const dbUpgrade = event.target.result;
   const transaction = event.target.transaction;
   let cancionesStore;
-  // Crear el almacén de canciones si no existe
+
   if (!dbUpgrade.objectStoreNames.contains(STORE_NAME)) {
     cancionesStore = dbUpgrade.createObjectStore(STORE_NAME, {
       keyPath: "id",
@@ -30,49 +46,43 @@ request.onupgradeneeded = (event) => {
   } else {
     cancionesStore = transaction.objectStore(STORE_NAME);
   }
-  // Crear el almacén de playlists si no existe
+
   if (!dbUpgrade.objectStoreNames.contains(PLAYLIST_STORE_NAME)) {
     const playlistsStore = dbUpgrade.createObjectStore(PLAYLIST_STORE_NAME, {
       keyPath: "id",
     });
-    // Crear la playlist predeterminada
-    playlistsStore.add({
-      id: "default",
-      nombre: "Mi playlist",
-    });
+    playlistsStore.add({ id: "default", nombre: "Mi playlist" });
   }
-  // Migrar las canciones antiguas a la playlist predeterminada
+
+  // Migrar canciones antiguas a la playlist predeterminada
   if (event.oldVersion < 2) {
     const cursorRequest = cancionesStore.openCursor();
     cursorRequest.onsuccess = (e) => {
       const cursor = e.target.result;
       if (!cursor) return;
-      const cancion = cursor.value;
-      if (!cancion.playlistId) {
-        cancion.playlistId = "default";
-        cursor.update(cancion);
+      const c = cursor.value;
+      if (!c.playlistId) {
+        c.playlistId = "default";
+        cursor.update(c);
       }
       cursor.continue();
     };
   }
 };
 
-// Cuando la base de datos se abre correctamente
 request.onsuccess = (event) => {
   db = event.target.result;
-  console.log("Base de datos ByteMusic abierta correctamente.");
-  // Si se cierra la conexión desde otra pestaña o herramienta
   db.onversionchange = () => {
     db.close();
     console.warn("La base de datos se ha cerrado por un cambio de versión.");
   };
   cargarPlaylists();
 };
-// Si ocurre un error al abrir la base de datos
+
 request.onerror = () => {
   console.error("Error al abrir IndexedDB:", request.error);
 };
-// Si otra pestaña impide actualizar la base de datos
+
 request.onblocked = () => {
   console.warn(
     "La apertura de IndexedDB está bloqueada. Cierra otras pestañas de ByteMusic.",
@@ -84,7 +94,6 @@ request.onblocked = () => {
 ======================================== */
 
 /* ---------- Reproductor ---------- */
-
 const tituloCancion = document.querySelector("#reproductor-musica h6");
 const nombreArtista = document.getElementById("nombre");
 const cancion = document.getElementById("cancion");
@@ -99,145 +108,189 @@ const botonAdelante = document.querySelector(".adelante");
 const botonAleatorio = document.querySelector(".aleatorio");
 const botonRepetir = document.querySelector(".repetir");
 const divMinutos = document.getElementById("minutos");
+
 /* ---------- Lista de canciones ---------- */
 const playListContainer = document.getElementById("playlist-container");
+
+/* ---------- Cabecera de la playlist ---------- */
+const plNombre = document.getElementById("pl-nombre");
+const plTotal = document.getElementById("pl-total");
+
 /* ---------- Playlists ---------- */
 const botonCrearPlaylist = document.getElementById("crear-playlist");
 const listaPlaylists = document.getElementById("lista-playlists");
+
 /* ---------- Modal de creación de playlist ---------- */
 const modalCrearPlaylist = document.getElementById("modalCrearPlaylist");
 const formularioPlaylist = document.getElementById("formCrearPlaylist");
 const inputNombrePlaylist = document.getElementById("nombrePlaylist");
 const errorNombrePlaylist = document.getElementById("errorNombrePlaylist");
+
 /* ---------- Mensaje de éxito ---------- */
 const tarjeta = document.getElementById("tarjetaExito");
 
 /* =========================================================
-   3. GESTIÓN DE PLAYLISTS
+   3. COLA DE REPRODUCCIÓN
    ========================================================= */
 
-/* ---------- Cargar playlists ---------- */
-function cargarPlaylists() {
-  if (!db) {
-    console.error("La base de datos todavía no está preparada.");
-    return;
+// Empieza a sonar la playlist que estás viendo, desde la canción indicada
+function reproducirDesde(indice) {
+  if (canciones.length === 0) return;
+  cola = [...canciones];
+  playlistReproduciendo = playlistActual;
+  indiceCancionActual = indice;
+  actualizarInfoCancion();
+  reproducirCancion();
+}
+
+/* ---------- Botones de la cabecera ---------- */
+
+document.getElementById("pl-reproducir")?.addEventListener("click", () => {
+  if (playlistReproduciendo === playlistActual && cola.length > 0) {
+    reproducirPausar(); // misma playlist: play / pausa
+  } else {
+    reproducirDesde(0); // otra playlist: empieza por la primera
   }
-  const transaction = db.transaction(PLAYLIST_STORE_NAME, "readonly");
-  const store = transaction.objectStore(PLAYLIST_STORE_NAME);
-  const request = store.getAll();
-  request.onsuccess = () => {
-    playlists = request.result;
-    // Si no hay playlists, crear la predeterminada
+});
+
+const botonHeaderAleatorio = document.getElementById("pl-aleatorio");
+
+botonHeaderAleatorio?.addEventListener("click", () => {
+  botonAleatorio.click(); // activa o desactiva el modo aleatorio
+
+  // Si activas el aleatorio en una playlist que no suena, empieza por una al azar
+  if (
+    modoAleatorio &&
+    playlistReproduciendo !== playlistActual &&
+    canciones.length > 0
+  ) {
+    reproducirDesde(Math.floor(Math.random() * canciones.length));
+  }
+});
+
+// Mantiene el botón del header encendido o apagado según el modo
+new MutationObserver(() => {
+  botonHeaderAleatorio?.classList.toggle("active", modoAleatorio);
+}).observe(botonAleatorio, { attributes: true, attributeFilter: ["class"] });
+
+/* =========================================================
+   4. GESTIÓN DE PLAYLISTS
+   ========================================================= */
+
+function cargarPlaylists() {
+  if (!db) return;
+
+  const store = db
+    .transaction(PLAYLIST_STORE_NAME, "readonly")
+    .objectStore(PLAYLIST_STORE_NAME);
+  const req = store.getAll();
+
+  req.onsuccess = () => {
+    playlists = req.result;
+
     if (playlists.length === 0) {
       crearPlaylistInicial();
       return;
     }
+
+    const activa = playlists.find((p) => p.id === playlistActual);
+    if (activa && plNombre) plNombre.textContent = activa.nombre;
+
     mostrarPlaylists();
     cargarCanciones();
   };
 
-  request.onerror = () => {
-    console.error("Error al cargar las playlists:", request.error);
+  req.onerror = () => {
+    console.error("Error al cargar las playlists:", req.error);
   };
 }
-
-/* ---------- Crear playlist inicial ---------- */
 
 function crearPlaylistInicial() {
-  if (!db) {
-    console.error("La base de datos todavía no está preparada.");
-    return;
-  }
-  const playlistInicial = {
-    id: "default",
-    nombre: "Mi playlist",
-  };
-  const transaction = db.transaction(PLAYLIST_STORE_NAME, "readwrite");
-  const store = transaction.objectStore(PLAYLIST_STORE_NAME);
-  const request = store.add(playlistInicial);
-  request.onsuccess = () => {
+  if (!db) return;
+
+  const playlistInicial = { id: "default", nombre: "Mi playlist" };
+  const store = db
+    .transaction(PLAYLIST_STORE_NAME, "readwrite")
+    .objectStore(PLAYLIST_STORE_NAME);
+  const req = store.add(playlistInicial);
+
+  req.onsuccess = () => {
     playlists = [playlistInicial];
     playlistActual = "default";
+    if (plNombre) plNombre.textContent = playlistInicial.nombre;
     mostrarPlaylists();
     cargarCanciones();
   };
-  request.onerror = () => {
-    console.error("Error al crear la playlist inicial:", request.error);
+
+  req.onerror = () => {
+    console.error("Error al crear la playlist inicial:", req.error);
   };
 }
 
-/* ---------- Mostrar playlists en la interfaz ---------- */
-
 function mostrarPlaylists() {
-  if (!listaPlaylists) {
-    console.error("No se encuentra el contenedor de playlists.");
-    return;
-  }
+  if (!listaPlaylists) return;
+
   listaPlaylists.innerHTML = "";
+
   playlists.forEach((playlist) => {
     const enlace = document.createElement("a");
     enlace.href = "#";
     enlace.classList.add("sidebar-item");
     enlace.title = playlist.nombre;
 
-    // Crear el icono y el nombre por separado
     const icono = document.createElement("i");
     icono.className = "bi bi-music-note-list";
 
     const nombre = document.createElement("span");
     nombre.textContent = playlist.nombre;
 
-    enlace.appendChild(icono);
-    enlace.appendChild(nombre);
-    // Cambiar de playlist al pulsar
+    enlace.append(icono, nombre);
+
     enlace.addEventListener("click", (event) => {
       event.preventDefault();
       seleccionarPlaylist(playlist.id);
     });
-    // Marcar visualmente la playlist seleccionada
+
     if (playlist.id === playlistActual) {
       enlace.classList.add("active");
     }
+
     listaPlaylists.appendChild(enlace);
   });
 }
-/* ---------- Seleccionar playlist ---------- */
+
 function seleccionarPlaylist(id) {
-  const playlistSeleccionada = playlists.find((playlist) => playlist.id === id);
-  if (!playlistSeleccionada) {
+  const seleccionada = playlists.find((p) => p.id === id);
+  if (!seleccionada) {
     console.error("No se ha encontrado la playlist:", id);
     return;
   }
+
   playlistActual = id;
-  // Actualizar el título de la playlist
-  const tituloPlaylist = document.querySelector(".playlist-header h2");
-  if (tituloPlaylist) {
-    tituloPlaylist.textContent = playlistSeleccionada.nombre;
-  }
-  // Actualizar el estado visual de la barra lateral
+  if (plNombre) plNombre.textContent = seleccionada.nombre;
+
   mostrarPlaylists();
-  // Cargar las canciones de la playlist seleccionada
   cargarCanciones();
 }
 
-/* Crear una nueva playlist */
+/* ---------- Abrir el modal ---------- */
 
-/* Abrir el modal al pulsar el botón + */
 botonCrearPlaylist.addEventListener("click", () => {
   errorNombrePlaylist.textContent = "";
+  inputNombrePlaylist.classList.remove("is-invalid");
+
   const modal = bootstrap.Modal.getOrCreateInstance(modalCrearPlaylist);
   modal.show();
-  // Colocar el cursor en el campo del nombre
+
   modalCrearPlaylist.addEventListener(
     "shown.bs.modal",
-    () => {
-      inputNombrePlaylist.focus();
-    },
+    () => inputNombrePlaylist.focus(),
     { once: true },
   );
 });
 
-/* Crear una playlist al enviar el formulario */
+/* ---------- Crear la playlist ---------- */
+
 formularioPlaylist.addEventListener("submit", (event) => {
   event.preventDefault();
 
@@ -246,39 +299,38 @@ formularioPlaylist.addEventListener("submit", (event) => {
       "La base de datos todavía no está preparada.";
     return;
   }
+
   const nombre = inputNombrePlaylist.value.trim();
-  // Comprobar que el nombre no esté vacío
+
   if (nombre === "") {
     errorNombrePlaylist.textContent = "Escribe un nombre para la playlist.";
+    inputNombrePlaylist.classList.add("is-invalid");
     inputNombrePlaylist.focus();
     return;
   }
-  // Evitar nombres duplicados
+
   const nombreExiste = playlists.some(
-    (playlist) => playlist.nombre.toLowerCase() === nombre.toLowerCase(),
+    (p) => p.nombre.toLowerCase() === nombre.toLowerCase(),
   );
 
   if (nombreExiste) {
     errorNombrePlaylist.textContent = "Ya existe una playlist con ese nombre.";
+    inputNombrePlaylist.classList.add("is-invalid");
     inputNombrePlaylist.focus();
     return;
   }
-  const nuevaPlaylist = {
-    id: crypto.randomUUID(),
-    nombre: nombre,
-  };
-  const transaction = db.transaction(PLAYLIST_STORE_NAME, "readwrite");
-  const store = transaction.objectStore(PLAYLIST_STORE_NAME);
+
+  const nuevaPlaylist = { id: crypto.randomUUID(), nombre };
+
+  const store = db
+    .transaction(PLAYLIST_STORE_NAME, "readwrite")
+    .objectStore(PLAYLIST_STORE_NAME);
   const addRequest = store.add(nuevaPlaylist);
+
   addRequest.onsuccess = () => {
     playlists.push(nuevaPlaylist);
-    mostrarPlaylists();
     seleccionarPlaylist(nuevaPlaylist.id);
-    // Limpiar el formulario y cerrar el modal
-    formularioPlaylist.reset();
-    errorNombrePlaylist.textContent = "";
     bootstrap.Modal.getOrCreateInstance(modalCrearPlaylist).hide();
-    console.log("Playlist creada:", nuevaPlaylist.nombre);
   };
 
   addRequest.onerror = () => {
@@ -288,51 +340,61 @@ formularioPlaylist.addEventListener("submit", (event) => {
   };
 });
 
-/* Limpiar el formulario al cerrar el modal */
-modalCrearPlaylist.addEventListener("hidden.bs.modal", () => {
-  formularioPlaylist.reset();
+// Quitar el error al escribir
+inputNombrePlaylist.addEventListener("input", () => {
+  inputNombrePlaylist.classList.remove("is-invalid");
   errorNombrePlaylist.textContent = "";
 });
 
+// Limpiar el formulario al cerrar el modal
+modalCrearPlaylist.addEventListener("hidden.bs.modal", () => {
+  formularioPlaylist.reset();
+  errorNombrePlaylist.textContent = "";
+  inputNombrePlaylist.classList.remove("is-invalid");
+});
+
 /* =========================================================
-   CANCIONES
+   5. CANCIONES
    ========================================================= */
 
 function cargarCanciones() {
   if (!db) return;
 
-  const request = db
+  const req = db
     .transaction(STORE_NAME, "readonly")
     .objectStore(STORE_NAME)
     .getAll();
 
-  request.onsuccess = () => {
-    canciones = request.result
+  req.onsuccess = () => {
+    // Liberar las URLs antiguas que no se estén usando en la cola
+    const enCola = new Set(cola.map((c) => c.fuente));
+    canciones.forEach((c) => {
+      if (!enCola.has(c.fuente)) URL.revokeObjectURL(c.fuente);
+    });
+
+    canciones = req.result
       .filter((c) => (c.playlistId || "default") === playlistActual)
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((c) => ({ ...c, fuente: URL.createObjectURL(c.archivo) }));
 
     actualizarPlaylist();
     inicializarSortable();
-
-    if (indiceCancionActual >= canciones.length) {
-      indiceCancionActual = 0;
-    }
   };
 }
 
 function comprobarAnchura() {
   const contenedor = document.querySelector(".titulo-container");
+  if (!contenedor) return;
+
   if (tituloCancion.scrollWidth > contenedor.clientWidth) {
     tituloCancion.classList.add("scroll");
-    console.log("Anchura del título:" + tituloCancion.classList);
   } else {
     tituloCancion.classList.remove("scroll");
   }
 }
 
 /* =========================================================
-   TARJETAS
+   6. TARJETA DE ÉXITO
    ========================================================= */
 
 function sacarTargeta() {
@@ -344,19 +406,18 @@ function cerrarTarjeta() {
 }
 
 /* =========================================================
-   AÑADIR CANCIONES
+   7. AÑADIR CANCIONES
    ========================================================= */
-
-/* ===== 5. AÑADIR CANCIONES ===== */
 
 document.getElementById("musica-input").addEventListener("change", (e) => {
   if (!db) return;
 
   const archivos = Array.from(e.target.files);
 
-  archivos.forEach((archivo) => {
+  archivos.forEach((archivo, i) => {
     const nombreArchivo = archivo.name.replace(/\.[^/.]+$/, "");
     const partes = nombreArchivo.split("-");
+
     const datosCancion = {
       titulo: partes.slice(1).join("-").trim() || "Título desconocido",
       nombre: partes[0].trim() || "Artista desconocido",
@@ -364,29 +425,41 @@ document.getElementById("musica-input").addEventListener("change", (e) => {
       imagenUrl:
         "https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg",
       playlistId: playlistActual,
-      orden: canciones.length,
+      orden: canciones.length + i,
     };
 
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const request = transaction.objectStore(STORE_NAME).add(datosCancion);
+    const store = db
+      .transaction(STORE_NAME, "readwrite")
+      .objectStore(STORE_NAME);
+    const addRequest = store.add(datosCancion);
 
-    request.onsuccess = () => {
-      canciones.push({
+    addRequest.onsuccess = () => {
+      const nueva = {
         ...datosCancion,
-        id: request.result,
+        id: addRequest.result,
         fuente: URL.createObjectURL(archivo),
-      });
+      };
 
-      actualizarPlaylist();
+      canciones.push(nueva);
 
-      if (canciones.length === 1) {
+      // Si esta playlist es la que suena, la canción entra también en la cola
+      if (playlistReproduciendo === playlistActual) {
+        cola.push(nueva);
+      }
+
+      // Si no había nada preparado en el reproductor, carga la primera
+      if (cola.length === 0) {
+        cola = [...canciones];
+        playlistReproduciendo = playlistActual;
         indiceCancionActual = 0;
         actualizarInfoCancion();
+      } else {
+        actualizarPlaylist();
       }
     };
 
-    request.onerror = () => {
-      console.error(`No se pudo importar ${archivo.name}:`, request.error);
+    addRequest.onerror = () => {
+      console.error(`No se pudo importar ${archivo.name}:`, addRequest.error);
     };
   });
 
@@ -396,11 +469,18 @@ document.getElementById("musica-input").addEventListener("change", (e) => {
 });
 
 /* =========================================================
-   MOSTRAR PLAYLIST
+   8. MOSTRAR LA LISTA DE CANCIONES
    ========================================================= */
 
 function actualizarPlaylist() {
+  // Contador de la cabecera
+  if (plTotal) {
+    const n = canciones.length;
+    plTotal.textContent = n + (n === 1 ? " canción" : " canciones");
+  }
+
   playListContainer.innerHTML = "";
+
   if (canciones.length === 0) {
     const li = document.createElement("li");
     li.id = "playlist-vacia";
@@ -409,15 +489,20 @@ function actualizarPlaylist() {
     return;
   }
 
+  const sonandoEstaPlaylist = playlistActual === playlistReproduciendo;
+
   canciones.forEach((c, index) => {
     const li = document.createElement("li");
     li.dataset.index = index;
+
     const img = document.createElement("img");
     img.src = c.imagenUrl;
     img.style.cssText = "border-radius: 15px; margin-right: 5px;";
     img.classList.add("active");
+
     const span = document.createElement("span");
     span.textContent = `${c.titulo} - ${c.nombre}`;
+
     const botonBorrar = document.createElement("button");
     botonBorrar.innerHTML = '<i class="bi bi-trash3"></i>';
     botonBorrar.classList.add("boton-borrar");
@@ -425,81 +510,99 @@ function actualizarPlaylist() {
       event.stopPropagation();
       borrarCancion(c.id);
     });
+
     const botonMover = document.createElement("button");
     botonMover.innerHTML = '<i class="bi bi-grip-vertical"></i>';
     botonMover.classList.add("boton-mover");
-    li.onclick = () => {
-      indiceCancionActual = index;
-      actualizarInfoCancion();
-      reproducirCancion();
-      comprobarAnchura();
-    };
-    if (index === indiceCancionActual) {
+
+    // Al pulsar una canción, suena esa playlist desde esa canción
+    li.onclick = () => reproducirDesde(index);
+
+    // Solo se marca la canción de la playlist que está sonando
+    if (sonandoEstaPlaylist && index === indiceCancionActual) {
       const loader = document.createElement("div");
       loader.classList.add("loader");
+      if (cancion.paused) loader.style.animationPlayState = "paused";
       span.appendChild(loader);
       li.classList.add("active");
     }
+
     li.append(img, span, botonBorrar, botonMover);
     playListContainer.appendChild(li);
   });
 }
 
 /* =========================================================
-   BORRAR CANCIÓN
+   9. BORRAR CANCIÓN
    ========================================================= */
 
 function borrarCancion(id) {
-  if (!db) {
-    return;
-  }
+  if (!db) return;
+
   const transaction = db.transaction(STORE_NAME, "readwrite");
-  const store = transaction.objectStore(STORE_NAME);
-  store.delete(id);
+  transaction.objectStore(STORE_NAME).delete(id);
+
   transaction.oncomplete = () => {
-    canciones = canciones.filter((cancionItem) => cancionItem.id !== id);
-    if (indiceCancionActual >= canciones.length) {
-      indiceCancionActual = Math.max(0, canciones.length - 1);
+    const sonandoEstaPlaylist = playlistReproduciendo === playlistActual;
+    const idActual = cola[indiceCancionActual]?.id;
+
+    canciones = canciones.filter((c) => c.id !== id);
+
+    if (sonandoEstaPlaylist) {
+      cola = cola.filter((c) => c.id !== id);
+
+      if (idActual === id) {
+        // Se ha borrado la canción que sonaba
+        pausarCancion();
+
+        if (cola.length > 0) {
+          indiceCancionActual = Math.min(indiceCancionActual, cola.length - 1);
+          actualizarInfoCancion();
+        } else {
+          playlistReproduciendo = null;
+          indiceCancionActual = 0;
+          cancion.removeAttribute("src");
+          cancion.load();
+          tituloCancion.textContent = "Titulo";
+          nombreArtista.textContent = "Nombre";
+        }
+      } else {
+        // Se ha borrado otra: recolocar el índice de la que sigue sonando
+        indiceCancionActual = Math.max(
+          0,
+          cola.findIndex((c) => c.id === idActual),
+        );
+      }
     }
+
     actualizarPlaylist();
-    if (canciones.length > 0) {
-      actualizarInfoCancion();
-    }
   };
 }
 
 /* =========================================================
-   VARIABLES DEL REPRODUCTOR
-   ========================================================= */
-
-let indiceCancionActual = 0;
-let modoAleatorio = false;
-let modoRepetir = false;
-
-/* =========================================================
-   INFORMACIÓN DE LA CANCIÓN
+   10. INFORMACIÓN DE LA CANCIÓN
    ========================================================= */
 
 function actualizarInfoCancion() {
-  if (canciones.length === 0 || !canciones[indiceCancionActual]) {
-    return;
-  }
-  tituloCancion.textContent = canciones[indiceCancionActual].titulo;
-  nombreArtista.textContent = canciones[indiceCancionActual].nombre;
-  cancion.src = canciones[indiceCancionActual].fuente;
+  const actual = cola[indiceCancionActual];
+  if (!actual) return;
+
+  tituloCancion.textContent = actual.titulo;
+  nombreArtista.textContent = actual.nombre;
+  cancion.src = actual.fuente;
   cancion.loop = modoRepetir;
+
   actualizarPlaylist();
   comprobarAnchura();
-  cancion.addEventListener("loadeddata", function () {});
 }
 
 /* =========================================================
-   VOLUMEN
+   11. VOLUMEN
    ========================================================= */
 
 controlVolumen.addEventListener("input", function () {
   cancion.volume = controlVolumen.value;
-  let valor = ((this.value - this.min) / (this.max - this.min)) * 100;
+  const valor = ((this.value - this.min) / (this.max - this.min)) * 100;
   this.style.background = `linear-gradient(to right, #FFFAFA ${valor}%, #272727 ${valor}%)`;
 });
 
@@ -508,7 +611,7 @@ cancion.addEventListener("volumechange", function () {
 });
 
 /* =========================================================
-   PROGRESO
+   12. PROGRESO
    ========================================================= */
 
 cancion.addEventListener("loadedmetadata", function () {
@@ -516,48 +619,6 @@ cancion.addEventListener("loadedmetadata", function () {
   progreso.value = cancion.currentTime;
   actualizarMinutosRestantes();
 });
-
-/* =========================================================
-   PLAY / PAUSA
-   ========================================================= */
-
-botonReproducirPausar.addEventListener("click", reproducirPausar);
-
-function reproducirPausar() {
-  console.log("reproducri");
-  if (cancion.paused) {
-    reproducirCancion();
-  } else {
-    pausarCancion();
-  }
-}
-
-function reproducirCancion() {
-  if (canciones.length === 0) {
-    return;
-  }
-  cancion.play();
-  const loader = document.querySelector(".loader");
-  if (loader) {
-    loader.style.animationPlayState = "running";
-  }
-  iconoControl.classList.add("bi-pause-circle-fill");
-  iconoControl.classList.remove("bi-play-circle-fill");
-}
-
-function pausarCancion() {
-  cancion.pause();
-  const loader = document.querySelector(".loader");
-  if (loader) {
-    loader.style.animationPlayState = "paused";
-  }
-  iconoControl.classList.remove("bi-pause-circle-fill");
-  iconoControl.classList.add("bi-play-circle-fill");
-}
-
-/* =========================================================
-   TIMEUPDATE
-   ========================================================= */
 
 cancion.addEventListener("timeupdate", function () {
   if (!cancion.paused) {
@@ -569,132 +630,126 @@ cancion.addEventListener("timeupdate", function () {
   }
 });
 
-/* =========================================================
-   CAMBIAR PROGRESO
-   ========================================================= */
-
 progreso.addEventListener("input", function () {
   cancion.currentTime = progreso.value;
   const porcentaje =
     ((progreso.value - progreso.min) / (progreso.max - progreso.min)) * 100;
-
   progreso.style.background = `linear-gradient(to right, #10CAD5 ${porcentaje}%, #ddd ${porcentaje}%)`;
 });
 
 /* =========================================================
-   SIGUIENTE
+   13. PLAY / PAUSA
    ========================================================= */
 
-botonAdelante.addEventListener("click", function () {
-  if (canciones.length === 0) {
+botonReproducirPausar.addEventListener("click", reproducirPausar);
+
+function reproducirPausar() {
+  // Si todavía no ha sonado nada, empieza la playlist que estás viendo
+  if (cola.length === 0) {
+    reproducirDesde(0);
     return;
   }
-  console.log(indiceCancionActual);
+
+  if (cancion.paused) {
+    reproducirCancion();
+  } else {
+    pausarCancion();
+  }
+}
+
+function reproducirCancion() {
+  if (cola.length === 0) return;
+
+  cancion.play().catch(() => {});
+
+  const loader = document.querySelector(".loader");
+  if (loader) loader.style.animationPlayState = "running";
+
+  iconoControl.classList.add("bi-pause-circle-fill");
+  iconoControl.classList.remove("bi-play-circle-fill");
+}
+
+function pausarCancion() {
+  cancion.pause();
+
+  const loader = document.querySelector(".loader");
+  if (loader) loader.style.animationPlayState = "paused";
+
+  iconoControl.classList.remove("bi-pause-circle-fill");
+  iconoControl.classList.add("bi-play-circle-fill");
+}
+
+/* =========================================================
+   14. SIGUIENTE, ANTERIOR Y FIN DE CANCIÓN
+   ========================================================= */
+
+function pasarASiguiente() {
+  if (cola.length === 0) return;
+
   if (modoRepetir) {
     cancion.currentTime = 0;
     reproducirCancion();
     return;
   }
 
-  if (modoAleatorio) {
-    indiceCancionActual = obtenerIndiceAleatorio();
-  } else {
-    indiceCancionActual = (indiceCancionActual + 1) % canciones.length;
-  }
+  indiceCancionActual = modoAleatorio
+    ? obtenerIndiceAleatorio()
+    : (indiceCancionActual + 1) % cola.length;
+
   actualizarInfoCancion();
   reproducirCancion();
-});
+}
 
-/* =========================================================
-   ANTERIOR
-   ========================================================= */
+botonAdelante.addEventListener("click", pasarASiguiente);
+cancion.addEventListener("ended", pasarASiguiente);
 
 botonAtras.addEventListener("click", function () {
-  if (canciones.length === 0) {
-    return;
-  }
-  console.log(indiceCancionActual);
-  if (modoAleatorio) {
-    indiceCancionActual = obtenerIndiceAleatorio();
-  } else {
-    indiceCancionActual =
-      (indiceCancionActual - 1 + canciones.length) % canciones.length;
-  }
+  if (cola.length === 0) return;
+
+  indiceCancionActual = modoAleatorio
+    ? obtenerIndiceAleatorio()
+    : (indiceCancionActual - 1 + cola.length) % cola.length;
+
   actualizarInfoCancion();
   reproducirCancion();
 });
 
+function obtenerIndiceAleatorio() {
+  if (cola.length === 0) return 0;
+
+  let nuevo;
+  do {
+    nuevo = Math.floor(Math.random() * cola.length);
+  } while (nuevo === indiceCancionActual && cola.length > 1);
+
+  return nuevo;
+}
+
 /* =========================================================
-   ALEATORIO
+   15. ALEATORIO Y REPETIR
    ========================================================= */
 
 botonAleatorio.addEventListener("click", function () {
   modoAleatorio = !modoAleatorio;
-  console.log(modoAleatorio);
   botonAleatorio.classList.toggle("active");
-  cancion.loop = modoRepetir;
 });
-
-/* =========================================================
-   CANCIÓN TERMINADA
-   ========================================================= */
-
-cancion.addEventListener("ended", function () {
-  if (canciones.length === 0) {
-    return;
-  }
-  if (modoRepetir) {
-    cancion.currentTime = 0;
-    reproducirCancion();
-    return;
-  }
-
-  if (modoAleatorio) {
-    indiceCancionActual = obtenerIndiceAleatorio();
-  } else {
-    indiceCancionActual = (indiceCancionActual + 1) % canciones.length;
-  }
-  actualizarInfoCancion();
-  reproducirCancion();
-});
-
-/* =========================================================
-   OBTENER ÍNDICE ALEATORIO
-   ========================================================= */
-
-function obtenerIndiceAleatorio() {
-  if (canciones.length === 0) {
-    return 0;
-  }
-  let nuevoIndice;
-  do {
-    nuevoIndice = Math.floor(Math.random() * canciones.length);
-  } while (nuevoIndice === indiceCancionActual && canciones.length > 1);
-  return nuevoIndice;
-}
-
-/* =========================================================
-   REPETIR
-   ========================================================= */
 
 botonRepetir.addEventListener("click", function () {
-  console.log("entrando");
   modoRepetir = !modoRepetir;
   botonRepetir.classList.toggle("active");
   cancion.loop = modoRepetir;
 });
 
 /* =========================================================
-   MINUTOS RESTANTES
+   16. MINUTOS RESTANTES
    ========================================================= */
 
 function actualizarMinutosRestantes() {
-  if (!Number.isFinite(cancion.duration)) {
-    return;
-  }
-  let tiempoRestante = cancion.duration - cancion.currentTime;
-  let minutos = Math.floor(tiempoRestante / 60);
-  let segundos = Math.floor(tiempoRestante % 60)
+  if (!Number.isFinite(cancion.duration)) return;
+
+  const tiempoRestante = cancion.duration - cancion.currentTime;
+  const minutos = Math.floor(tiempoRestante / 60);
+  const segundos = Math.floor(tiempoRestante % 60)
     .toString()
     .padStart(2, "0");
 
@@ -702,14 +757,11 @@ function actualizarMinutosRestantes() {
 }
 
 /* =========================================================
-   SORTABLE
+   17. ARRASTRAR PARA REORDENAR (SORTABLE)
    ========================================================= */
 
 function inicializarSortable() {
-  /*
-   * Evitamos crear varios Sortable
-   * sobre el mismo elemento.
-   */
+  // Evitar crear varios Sortable sobre el mismo elemento
   if (playListContainer._sortable) {
     playListContainer._sortable.destroy();
   }
@@ -717,22 +769,39 @@ function inicializarSortable() {
   playListContainer._sortable = new Sortable(playListContainer, {
     animation: 150,
     handle: ".boton-mover",
+
     onEnd: function (event) {
-      if (event.oldIndex === undefined || event.newIndex === undefined) {
-        return;
+      if (event.oldIndex === undefined || event.newIndex === undefined) return;
+
+      const idActual = cola[indiceCancionActual]?.id;
+
+      // Reordenar la lista visible
+      const movida = canciones.splice(event.oldIndex, 1)[0];
+      canciones.splice(event.newIndex, 0, movida);
+
+      // Si esta playlist es la que suena, mantener la cola en el mismo orden
+      if (playlistReproduciendo === playlistActual) {
+        cola = [...canciones];
+        indiceCancionActual = Math.max(
+          0,
+          cola.findIndex((c) => c.id === idActual),
+        );
       }
-      const elementoMovido = canciones.splice(event.oldIndex, 1)[0];
-      canciones.splice(event.newIndex, 0, elementoMovido);
-      console.log("Nuevo orden:", canciones);
-      if (!db) {
-        return;
+
+      // Guardar el nuevo orden (sin la URL temporal)
+      if (db) {
+        const store = db
+          .transaction(STORE_NAME, "readwrite")
+          .objectStore(STORE_NAME);
+
+        canciones.forEach((item, index) => {
+          item.orden = index;
+          const { fuente, ...datos } = item;
+          store.put(datos);
+        });
       }
-      const transaction = db.transaction(STORE_NAME, "readwrite");
-      const store = transaction.objectStore(STORE_NAME);
-      canciones.forEach((cancionItem, index) => {
-        cancionItem.orden = index;
-        store.put(cancionItem);
-      });
+
+      actualizarPlaylist();
     },
   });
 }

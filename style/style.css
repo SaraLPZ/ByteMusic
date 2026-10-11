@@ -11,42 +11,20 @@
   --fuente-principal: "Poppins", sans-serif;
   --fuente-style: normal;
   --fuente-weight: 400;
-  --fuente-title-weight: 600;
 
-  /* Colores */
+  /* Colores base */
   --color-blanco: #ffffff;
-  --color-negro: #000000;
-  --color-transparente: transparent;
-
-  /* Fondos */
   --color-fondoOscuro: #232026;
-  --color-fondoClaro: #262d47;
-  --color-fondoGris: #2f2a31;
-  --color-fondo-input: #353535;
-
-  /* Acentos */
-  --color-circulo-progreso: #10cad5;
-  --color-botonReproducir: #10cad5;
   --color-barra: #1a181c;
 
-  /* Paleta alternativa, conservada por compatibilidad */
-  --color-fondoOscuro2: #352740;
-  --color-fondoClaro2: #262d47;
-  --color-fondoGris2: #4d3256;
-  --color-fondo-input2: #353535;
-  --color-circulo-progreso2: #121d34;
-  --color-barra2: #4d3462;
+  /* Acentos */
+  --color-botonReproducir: #10cad5;
+  --color-circulo-progreso: #10cad5;
 }
 
 body {
   overflow-x: hidden;
-}
-
-h1 {
   font-family: var(--fuente-principal);
-  font-weight: var(--fuente-title-weight);
-  font-style: var(--fuente-style);
-  color: var(--color-circulo-progreso) !important;
 }
 
 h4 {
@@ -57,323 +35,7 @@ h4 {
 }
 
 /* =====================================================
-   2. CABECERA BYTEMUSIC
-===================================================== */
-
-.bm-header {
-  position: relative;
-  width: 100%;
-  height: 330px;
-  overflow: hidden;
-  background: #17141c;
-  border-bottom: 1px solid #39333f;
-  font-family: var(--fuente-principal);
-}
-
-.bm-header::before,
-.bm-header::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #302b35;
-}
-
-.bm-header::before {
-  top: 55px;
-}
-
-.bm-header::after {
-  bottom: 55px;
-}
-
-.bm-header-top {
-  position: absolute;
-  top: 20px;
-  left: 35px;
-  right: 35px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  color: #77717d;
-  font-size: 9px;
-  letter-spacing: 3px;
-}
-
-.bm-header-top span:first-child {
-  color: #10cad5;
-  font-weight: 600;
-}
-
-.bm-header-line {
-  width: 100px;
-  height: 1px;
-  background: #514957;
-}
-
-.bm-wave {
-  position: absolute;
-  top: 56px;
-  right: 0;
-  bottom: 56px;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  opacity: 0.28;
-}
-
-.bm-wave span {
-  display: block;
-  flex-shrink: 0;
-  width: 3px;
-  height: var(--altura-barra, 20px);
-  border-radius: 5px;
-  background: #10cad5;
-}
-
-/* Altura de cada barra de la onda */
-.bm-wave span:nth-child(1) {
-  --altura-barra: 10px;
-}
-.bm-wave span:nth-child(2) {
-  --altura-barra: 20px;
-}
-.bm-wave span:nth-child(3) {
-  --altura-barra: 35px;
-}
-.bm-wave span:nth-child(4) {
-  --altura-barra: 55px;
-}
-.bm-wave span:nth-child(5) {
-  --altura-barra: 80px;
-}
-.bm-wave span:nth-child(6) {
-  --altura-barra: 110px;
-}
-.bm-wave span:nth-child(7) {
-  --altura-barra: 75px;
-}
-.bm-wave span:nth-child(8) {
-  --altura-barra: 135px;
-}
-.bm-wave span:nth-child(9) {
-  --altura-barra: 100px;
-}
-.bm-wave span:nth-child(10) {
-  --altura-barra: 160px;
-}
-.bm-wave span:nth-child(11) {
-  --altura-barra: 120px;
-}
-.bm-wave span:nth-child(12) {
-  --altura-barra: 90px;
-}
-.bm-wave span:nth-child(13) {
-  --altura-barra: 145px;
-}
-.bm-wave span:nth-child(14) {
-  --altura-barra: 175px;
-}
-.bm-wave span:nth-child(15) {
-  --altura-barra: 125px;
-}
-.bm-wave span:nth-child(16) {
-  --altura-barra: 95px;
-}
-.bm-wave span:nth-child(17) {
-  --altura-barra: 150px;
-}
-.bm-wave span:nth-child(18) {
-  --altura-barra: 185px;
-}
-.bm-wave span:nth-child(19) {
-  --altura-barra: 140px;
-}
-.bm-wave span:nth-child(20) {
-  --altura-barra: 100px;
-}
-.bm-wave span:nth-child(21) {
-  --altura-barra: 160px;
-}
-.bm-wave span:nth-child(22) {
-  --altura-barra: 180px;
-}
-.bm-wave span:nth-child(23) {
-  --altura-barra: 130px;
-}
-.bm-wave span:nth-child(24) {
-  --altura-barra: 85px;
-}
-.bm-wave span:nth-child(25) {
-  --altura-barra: 150px;
-}
-.bm-wave span:nth-child(26) {
-  --altura-barra: 175px;
-}
-.bm-wave span:nth-child(27) {
-  --altura-barra: 120px;
-}
-.bm-wave span:nth-child(28) {
-  --altura-barra: 90px;
-}
-.bm-wave span:nth-child(29) {
-  --altura-barra: 145px;
-}
-.bm-wave span:nth-child(30) {
-  --altura-barra: 180px;
-}
-.bm-wave span:nth-child(31) {
-  --altura-barra: 135px;
-}
-.bm-wave span:nth-child(32) {
-  --altura-barra: 100px;
-}
-.bm-wave span:nth-child(33) {
-  --altura-barra: 155px;
-}
-.bm-wave span:nth-child(34) {
-  --altura-barra: 175px;
-}
-.bm-wave span:nth-child(35) {
-  --altura-barra: 125px;
-}
-.bm-wave span:nth-child(36) {
-  --altura-barra: 80px;
-}
-.bm-wave span:nth-child(37) {
-  --altura-barra: 140px;
-}
-.bm-wave span:nth-child(38) {
-  --altura-barra: 165px;
-}
-.bm-wave span:nth-child(39) {
-  --altura-barra: 115px;
-}
-.bm-wave span:nth-child(40) {
-  --altura-barra: 75px;
-}
-.bm-wave span:nth-child(41) {
-  --altura-barra: 130px;
-}
-.bm-wave span:nth-child(42) {
-  --altura-barra: 150px;
-}
-.bm-wave span:nth-child(43) {
-  --altura-barra: 100px;
-}
-.bm-wave span:nth-child(44) {
-  --altura-barra: 65px;
-}
-.bm-wave span:nth-child(45) {
-  --altura-barra: 45px;
-}
-.bm-wave span:nth-child(46) {
-  --altura-barra: 30px;
-}
-.bm-wave span:nth-child(47) {
-  --altura-barra: 20px;
-}
-.bm-wave span:nth-child(48) {
-  --altura-barra: 12px;
-}
-
-/* Colores destacados de la onda */
-.bm-wave span:nth-child(10n + 10) {
-  background: #884ac7;
-}
-
-.bm-wave span:nth-child(13),
-.bm-wave span:nth-child(25),
-.bm-wave span:nth-child(37) {
-  background: #e94f9f;
-}
-
-.bm-wave span:nth-child(17),
-.bm-wave span:nth-child(29),
-.bm-wave span:nth-child(41) {
-  background: #884ac7;
-}
-
-.bm-wave span:nth-child(21),
-.bm-wave span:nth-child(33) {
-  background: #10cad5;
-}
-
-.bm-title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 10;
-  min-width: 500px;
-  padding: 25px 45px;
-  transform: translate(-50%, -50%);
-  background: #17141c;
-  text-align: center;
-}
-
-.bm-kicker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: #10cad5;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 5px;
-}
-
-.bm-kicker-line {
-  width: 35px;
-  height: 1px;
-  background: #10cad5;
-}
-
-.bm-title h1 {
-  margin: 8px 0 5px;
-  color: #ffffff !important;
-  font-size: clamp(50px, 7vw, 88px);
-  font-weight: 800;
-  letter-spacing: 7px;
-  line-height: 1;
-}
-
-.bm-title p {
-  margin: 15px 0 0;
-  color: #8c8791;
-  font-size: 9px;
-  letter-spacing: 5px;
-}
-
-.bm-header-bottom {
-  position: absolute;
-  right: 35px;
-  bottom: 18px;
-  left: 35px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #68626d;
-  font-size: 8px;
-  letter-spacing: 2px;
-}
-
-.bm-header-bottom i {
-  margin-right: 6px;
-  color: #10cad5;
-  font-size: 13px;
-}
-
-.bm-header-bottom span:nth-child(2) {
-  color: #e94f9f;
-}
-
-/* =====================================================
-   3. BARRA LATERAL
+   2. BARRA LATERAL
 ===================================================== */
 
 .sidebar {
@@ -477,7 +139,7 @@ h4 {
 }
 
 /* =====================================================
-   4. CONTENIDO PRINCIPAL
+   3. CONTENIDO PRINCIPAL
 ===================================================== */
 
 .content {
@@ -496,48 +158,180 @@ h4 {
 }
 
 /* =====================================================
-   5. PLAYLIST Y CANCIONES
+   4. CABECERA DE LA PLAYLIST
 ===================================================== */
 
-.playlist-header {
+.pl-hero {
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+  margin: 24px;
+  padding: 40px 36px 32px;
+  border-radius: 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 202, 213, 0.22) 0%,
+    rgba(23, 20, 28, 0) 100%
+  );
+  color: #fff;
+}
+
+.pl-cover {
+  flex: 0 0 auto;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+.pl-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pl-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #10cad5;
+}
+
+.pl-name {
+  margin: 0;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pl-meta {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.92rem;
+  color: #a79fb2;
 }
 
-.playlist-header h2 {
-  margin-top: 30px;
-  margin-left: 40px;
+.pl-meta strong {
+  color: #fff;
+  font-weight: 600;
 }
 
-#boton-anadir {
+.pl-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #a79fb2;
+}
+
+.pl-actions {
   display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pl-btn-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px;
+  border: none;
+  border-radius: 999px;
+  background: #10cad5;
+  color: #0e0c12;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition:
+    transform 0.15s,
+    background 0.2s;
+}
+
+.pl-btn-play i {
+  font-size: 1.3rem;
+}
+
+.pl-btn-play:hover {
+  background: #2de0eb;
+  transform: scale(1.03);
+}
+
+.pl-btn-ghost {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 35px;
-  height: 35px;
-  margin-top: 30px;
-  border: 1px solid #10cad5;
+  width: 46px;
+  height: 46px;
+  border: 1px solid #3a3342;
   border-radius: 50%;
   background: transparent;
+  color: #d6d0de;
+  font-size: 1.1rem;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.pl-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: #50485a;
+  color: #fff;
+}
+
+.pl-btn-ghost.active {
+  background: rgba(16, 202, 213, 0.15);
+  border-color: #10cad5;
   color: #10cad5;
-  font-size: 18px;
+}
+
+.pl-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border: 1px solid #3a3342;
+  border-radius: 999px;
+  background: transparent;
+  color: #d6d0de;
+  font-size: 0.92rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
-#boton-anadir:hover {
-  transform: scale(1.08);
-  background: #10cad5;
-  color: #17141c;
-  box-shadow: 0 0 12px rgba(16, 202, 213, 0.4);
+.pl-btn-add i {
+  color: #10cad5;
+  font-size: 1.1rem;
 }
 
-#boton-anadir i {
-  pointer-events: none;
+.pl-btn-add:hover {
+  background: rgba(16, 202, 213, 0.1);
+  border-color: #10cad5;
+  color: #fff;
+}
+
+/* =====================================================
+   5. LISTA DE CANCIONES
+===================================================== */
+
+#musica-input {
+  display: none;
 }
 
 #playlist-container {
+  margin: 0;
   overflow-y: auto;
   padding: 30px 30px 150px 0;
   background: transparent;
@@ -793,10 +587,6 @@ h4 {
   border-radius: 50px;
 }
 
-.texto-download-movil {
-  display: none;
-}
-
 /* =====================================================
    8. BARRAS DE PROGRESO Y VOLUMEN
 ===================================================== */
@@ -827,8 +617,7 @@ h4 {
   background: linear-gradient(to right, #fffafa 100%, #3b3b3b 0%);
 }
 
-/* Chrome, Safari, Edge y otros navegadores WebKit */
-
+/* Chrome, Safari, Edge */
 #progreso::-webkit-slider-thumb,
 #control-volumen::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -850,7 +639,6 @@ h4 {
 }
 
 /* Firefox */
-
 #progreso::-moz-range-thumb {
   width: 14px;
   height: 14px;
@@ -870,121 +658,206 @@ h4 {
 }
 
 /* =====================================================
-   9. IMPORTACIÓN DE ARCHIVOS
+   9. MODAL DE CREACIÓN DE PLAYLIST
 ===================================================== */
 
-.selector-archivos {
-  background: transparent;
-  text-align: center;
+#modalCrearPlaylist {
+  --pl-bg: #17141c;
+  --pl-input: #26212d;
+  --pl-border: #3a3342;
+  --pl-accent: #10cad5;
+  --pl-accent-hover: #2de0eb;
+  --pl-text: #ffffff;
+  --pl-error: #ff6b81;
 }
-
-.texto-download {
-  margin-top: 40px;
-  font-family: var(--fuente-principal);
-}
-
-#musica-input {
-  display: none;
-  border-radius: 25px;
-  color: transparent;
-  text-align: center;
-}
-
-.custom-file-upload {
-  display: inline-block;
-  padding: 10px 20px;
-  border-radius: 25px;
-  background: #007bff;
-  color: #ffffff;
-  font-size: 16px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.selector-musica label {
-  width: 70%;
-  height: 200px;
-  border: 2px dashed #dddddd;
-  border-radius: 6px;
-  background: var(--color-fondo-input);
-}
-
-#imagenDownload {
-  width: 100px;
-  height: 100px;
-}
-
-.addCorrect {
-  display: none;
-}
-
-/* =====================================================
-   10. MODAL DE CREACIÓN DE PLAYLIST
-===================================================== */
 
 #modalCrearPlaylist .modal-content {
-  border: none;
-  border-radius: 18px;
-  background: #17141c;
-  color: #ffffff;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  background: linear-gradient(160deg, #1d1924 0%, var(--pl-bg) 60%);
+  color: var(--pl-text);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(16, 202, 213, 0.04);
 }
 
+/* Línea de acento superior */
+#modalCrearPlaylist .modal-content::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--pl-accent),
+    transparent
+  );
+  opacity: 0.8;
+}
+
+/* Animación de entrada */
+#modalCrearPlaylist.fade .modal-dialog {
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#modalCrearPlaylist.show .modal-dialog {
+  transform: none;
+}
+
+/* Header */
 #modalCrearPlaylist .modal-header {
-  padding: 24px 24px 12px;
+  align-items: center;
+  padding: 26px 28px 8px;
   border-bottom: none;
-  background: #17141c;
+  background: transparent;
 }
 
+#modalCrearPlaylist .modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+#modalCrearPlaylist .btn-close {
+  padding: 10px;
+  border-radius: 50%;
+  opacity: 0.6;
+  transition:
+    opacity 0.2s,
+    background-color 0.2s,
+    transform 0.2s;
+}
+
+#modalCrearPlaylist .btn-close:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: rotate(90deg);
+}
+
+/* Body */
 #modalCrearPlaylist .modal-body {
-  padding: 20px 24px;
+  padding: 18px 28px 12px;
   border: none;
-  background: #17141c;
-}
-
-#modalCrearPlaylist .modal-footer {
-  padding: 12px 24px 24px;
-  border-top: none;
-  background: #17141c;
-}
-
-#modalCrearPlaylist form {
-  border: none;
+  background: transparent;
 }
 
 #modalCrearPlaylist .input-playlist {
-  border: 1px solid #494151;
-  border-radius: 10px;
-  background: #26212d;
-  color: #ffffff;
+  padding: 13px 16px;
+  border: 1px solid var(--pl-border);
+  border-radius: 12px;
+  background: var(--pl-input);
+  color: var(--pl-text);
+  font-size: 1rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+#modalCrearPlaylist .input-playlist::placeholder {
+  color: #6f6779;
+}
+
+#modalCrearPlaylist .input-playlist:hover {
+  border-color: #50485a;
 }
 
 #modalCrearPlaylist .input-playlist:focus {
-  border-color: #10cad5;
-  background: #26212d;
-  color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(16, 202, 213, 0.12);
+  border-color: var(--pl-accent);
+  color: var(--pl-text);
+  box-shadow: 0 0 0 4px rgba(16, 202, 213, 0.15);
+  outline: none;
+}
+
+#modalCrearPlaylist .input-playlist.is-invalid {
+  border-color: var(--pl-error);
+  background-image: none;
+  box-shadow: 0 0 0 4px rgba(255, 107, 129, 0.12);
+}
+
+#modalCrearPlaylist .error-playlist {
+  min-height: 20px;
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--pl-error);
+}
+
+/* Footer */
+#modalCrearPlaylist .modal-footer {
+  gap: 10px;
+  padding: 12px 28px 26px;
+  border-top: none;
+  background: transparent;
 }
 
 #modalCrearPlaylist .btn-cancelar-playlist,
 #modalCrearPlaylist .btn-crear-playlist {
-  border: none;
-  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition:
+    transform 0.15s,
+    background 0.2s,
+    box-shadow 0.2s;
 }
 
 #modalCrearPlaylist .btn-cancelar-playlist {
-  background: #26212d;
-  color: #ffffff;
+  border: 1px solid var(--pl-border);
+  background: transparent;
+  color: #d6d0de;
+  font-weight: 500;
+}
+
+#modalCrearPlaylist .btn-cancelar-playlist:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #50485a;
+  color: #fff;
 }
 
 #modalCrearPlaylist .btn-crear-playlist {
-  background: #10cad5;
-  color: #17141c;
-  font-weight: 600;
+  border: none;
+  background: linear-gradient(135deg, var(--pl-accent), #0fb0c4);
+  color: #0e0c12;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(16, 202, 213, 0.28);
+}
+
+#modalCrearPlaylist .btn-crear-playlist:hover {
+  background: linear-gradient(135deg, var(--pl-accent-hover), var(--pl-accent));
+  box-shadow: 0 8px 24px rgba(16, 202, 213, 0.4);
+  transform: translateY(-1px);
+}
+
+#modalCrearPlaylist .btn-crear-playlist:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(16, 202, 213, 0.3);
+}
+
+#modalCrearPlaylist .btn-crear-playlist:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Accesibilidad */
+#modalCrearPlaylist .btn:focus-visible,
+#modalCrearPlaylist .btn-close:focus-visible {
+  outline: 2px solid var(--pl-accent);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 /* =====================================================
-   11. TARJETAS Y ALERTAS
+   10. TARJETA DE ÉXITO
 ===================================================== */
 
 .card-container {
@@ -1015,7 +888,7 @@ h4 {
 }
 
 /* =====================================================
-   12. ANIMACIÓN DEL REPRODUCTOR
+   11. ANIMACIÓN DE LA CANCIÓN EN REPRODUCCIÓN
 ===================================================== */
 
 .loader {
@@ -1067,9 +940,10 @@ h4 {
 }
 
 /* =====================================================
-   13. RESPONSIVE: TABLET Y PANTALLAS PEQUEÑAS
+   12. RESPONSIVE
 ===================================================== */
 
+/* Tablet: barra lateral compacta */
 @media (max-width: 1000px) {
   .sidebar {
     display: block;
@@ -1078,7 +952,7 @@ h4 {
   }
 
   .content {
-    margin-left: 40px;
+    margin-left: 70px;
   }
 
   .sidebar-title,
@@ -1104,103 +978,37 @@ h4 {
   }
 }
 
-@media (max-width: 768px) {
-  .bm-header {
-    height: 260px;
+/* Móvil */
+@media (max-width: 640px) {
+  .pl-hero {
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 20px;
+    text-align: center;
   }
 
-  .bm-title {
-    width: 90%;
-    min-width: 0;
-    padding: 20px;
+  .pl-cover {
+    width: 160px;
+    height: 160px;
   }
 
-  .bm-title h1 {
-    font-size: 42px;
-    letter-spacing: 4px;
-  }
-
-  .bm-wave {
-    gap: 4px;
-    opacity: 0.18;
-  }
-
-  .bm-wave span {
-    width: 2px;
-  }
-
-  .bm-header-bottom span:first-child,
-  .bm-header-bottom span:last-child {
-    display: none;
-  }
-
-  .bm-header-bottom {
+  .pl-meta,
+  .pl-actions {
     justify-content: center;
+  }
+
+  .pl-actions {
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 576px) {
-  .bm-header {
-    height: 220px;
-  }
-
-  .bm-title h1 {
-    font-size: 32px;
-    letter-spacing: 3px;
-  }
-
-  .bm-kicker {
-    font-size: 7px;
-    letter-spacing: 3px;
-  }
-
-  .bm-title p {
-    font-size: 7px;
-    letter-spacing: 3px;
-  }
-
-  .bm-wave {
-    opacity: 0.12;
-  }
-
-  .bm-header-top {
-    right: 15px;
-    left: 15px;
-    font-size: 7px;
-  }
-
-  .bm-header-top span:last-child {
-    display: none;
-  }
-
   #cotenedorVolumen {
     display: none;
   }
 
-  #musica-input2 {
-    height: 70px;
-  }
-
-  #musica-input2 img {
-    display: none;
-  }
-
-  #contenedorControles {
-    background: transparent;
-  }
-
   #contenedorBotones {
     margin-left: 15%;
-    background: transparent;
-  }
-
-  .texto-download {
-    display: none;
-  }
-
-  .texto-download-movil {
-    display: block;
-    margin-top: 3%;
   }
 
   #playlist-container li span {
@@ -1211,17 +1019,24 @@ h4 {
     font-size: 0.9rem;
   }
 
-  #contenedorControles button {
-    padding: 8px;
-    font-size: 1rem;
-  }
-
-  #imagenDownload {
-    max-width: 50px;
-    max-height: 50px;
-  }
-
   #cancion {
+    width: 100%;
+  }
+
+  #modalCrearPlaylist .modal-header {
+    padding: 22px 20px 6px;
+  }
+
+  #modalCrearPlaylist .modal-body {
+    padding: 14px 20px 8px;
+  }
+
+  #modalCrearPlaylist .modal-footer {
+    flex-direction: column-reverse;
+    padding: 10px 20px 22px;
+  }
+
+  #modalCrearPlaylist .modal-footer .btn {
     width: 100%;
   }
 }

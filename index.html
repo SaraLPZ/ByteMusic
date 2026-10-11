@@ -54,9 +54,10 @@
         </div>
       </div>
     </nav>
+
     <!-- CONTENEDOR PRINCIPAL -->
     <div class="content">
-      <!-- Tarjeta centrada en la pantalla con un botón para cerrar -->
+      <!-- Tarjeta de éxito -->
       <div
         id="tarjetaExito"
         class="card-container bg-color-primary"
@@ -79,139 +80,62 @@
           </div>
         </div>
       </div>
-      <!-- ******************* -->
-      <header class="bm-header">
-        <!-- Información superior -->
-        <div class="bm-header-top">
-          <span>BYTE / MUSIC</span>
-          <span class="bm-header-line"></span>
-          <span>DIGITAL AUDIO PLAYER</span>
-        </div>
 
-        <!-- Waveform -->
-        <div class="bm-wave">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+      <!-- CABECERA DE LA PLAYLIST -->
+      <header class="pl-hero">
+        <img
+          class="pl-cover"
+          src="https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg"
+          alt="Portada de la playlist" />
 
-        <!-- Contenido principal -->
-        <div class="bm-title">
-          <div class="bm-kicker">
-            <span class="bm-kicker-line"></span>
-            LISTEN DIFFERENT
-            <span class="bm-kicker-line"></span>
-          </div>
+        <div class="pl-info">
+          <span class="pl-label">PLAYLIST</span>
+          <h1 class="pl-name" id="pl-nombre">Mi playlist</h1>
+          <p class="pl-meta">
+            <strong>Sara López</strong>
+            <span class="pl-dot"></span>
+            <span id="pl-total">0 canciones</span>
+          </p>
 
-          <h1>BYTEMUSIC</h1>
+          <div class="pl-actions">
+            <button type="button" class="pl-btn-play" id="pl-reproducir">
+              <i class="bi bi-play-fill"></i>
+              Reproducir
+            </button>
 
-          <p>MUSIC WITHOUT LIMITS</p>
-        </div>
+            <button
+              type="button"
+              class="pl-btn-ghost"
+              id="pl-aleatorio"
+              aria-label="Aleatorio">
+              <i class="bi bi-shuffle"></i>
+            </button>
 
-        <!-- Información inferior -->
-        <div class="bm-header-bottom">
-          <span>
-            <i class="bi bi-soundwave"></i>
-            HIGH QUALITY AUDIO
-          </span>
-
-          <span>SARA LOPEZ</span>
-
-          <span>
-            <i class="bi bi-vinyl"></i>
-            YOUR MUSIC
-          </span>
-        </div>
-      </header>
-      <section id="reproductor-musica">
-        <div class="selector-archivos">
-          <!-- <div class="selector selector-fondo">
-          <label for="fondo-input">Background</label>
-          <input id="fondo-input" type="file" accept="image/*">
-        </div> -->
-        </div>
-        <div class="playlist">
-          <div class="playlist-header">
-            <h2>Mi playlist</h2>
-
-            <label for="musica-input" id="boton-anadir">
+            <label for="musica-input" class="pl-btn-add">
               <i class="bi bi-plus-lg"></i>
+              Añadir canciones
             </label>
             <input
               id="musica-input"
               type="file"
               multiple
+              hidden
               accept="audio/mpeg, audio/wav, audio/mp3, audio/ogg, audio/aac" />
           </div>
+        </div>
+      </header>
 
+      <!-- LISTA + REPRODUCTOR -->
+      <section id="reproductor-musica">
+        <div class="playlist">
           <ul id="playlist-container">
             <li id="playlist-vacia">
               Todavía no has añadido nada a la playlist
             </li>
           </ul>
         </div>
-        <!-- Nombre cancion  y artista-->
+
+        <!-- Nombre canción y artista -->
         <div id="contenedorNombreAll">
           <div id="contenedorImgTitle">
             <img
@@ -224,25 +148,22 @@
               <div id="nombre">Nombre</div>
             </div>
           </div>
-          <div id="lopez">
-            <!-- 
-            <h5>Titulo</h5>
-            <h6>Nombre</h6> -->
 
+          <div id="lopez">
             <audio src="" id="cancion">
               <source src="" type="audio/mpeg" />
               <source src="" type="audio/wav" />
             </audio>
+
             <div id="contenedorRango">
               <input type="range" value="0" id="progreso" />
-              <!-- <div class="value" id="sliderValue">munitos musica</div> -->
             </div>
+
             <div id="contenedorControles">
               <div id="minutos"></div>
+
               <div id="cotenedorVolumen">
-                <!-- Icono volumen -->
                 <i class="bi bi-volume-down-fill fs-4"></i>
-                <!-- Input del volumen -->
                 <input
                   type="range"
                   id="control-volumen"
@@ -251,17 +172,13 @@
                   step="0.01"
                   value="1" />
               </div>
+
               <div id="contenedorBotones">
-                <!-- boton aleatorio -->
                 <i class="bi bi-shuffle iconoAleatorio aleatorio control"></i>
-                <!-- botón atras -->
                 <i class="bi bi-rewind atras control"></i>
-                <!-- icono reproducir pausar -->
                 <i
                   class="bi bi-play-circle-fill iconoControl boton-reproducir-pausar"></i>
-                <!-- boton adelante -->
                 <i class="bi bi-fast-forward adelante control"></i>
-                <!-- Boton repetir -->
                 <i class="bi bi-repeat iconoRepetir repetir control"></i>
               </div>
             </div>
@@ -269,11 +186,8 @@
         </div>
       </section>
       <br />
-      <!-- <h2>Contenido Principal</h2>
-      <p>Este es el espacio principal donde va el contenido. El navbar se mantiene fijo a la izquierda.</p>
-      <p>Desplázate para ver que el navbar no se mueve.</p>
-      <p style="height: 1000px;">(Espacio para hacer scroll y probar el navbar fijo)</p> -->
     </div>
+
     <!-- MODAL PARA CREAR PLAYLIST -->
     <div
       class="modal fade"
@@ -284,10 +198,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-playlist">
           <div class="modal-header">
-            <h5 class="modal-title" id="tituloModalPlaylist">
-              <i class="bi bi-music-note-list"></i>
-              Nueva playlist
-            </h5>
+            <h5 class="modal-title" id="tituloModalPlaylist">Nueva playlist</h5>
 
             <button
               type="button"
@@ -298,10 +209,6 @@
 
           <form id="formCrearPlaylist">
             <div class="modal-body">
-              <label for="nombrePlaylist" class="form-label">
-                Nombre de la playlist
-              </label>
-
               <input
                 type="text"
                 class="form-control input-playlist"
@@ -334,7 +241,6 @@
         </div>
       </div>
     </div>
-
     <script src="app.js"></script>
   </body>
 </html>
