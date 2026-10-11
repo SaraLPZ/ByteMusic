@@ -1,33 +1,28 @@
+/* ========================================
+   1. CONFIGURACIÓN DE INDEXEDDB
+======================================== */
+
+// Configuración de la base de datos
 const DB_NAME = "ByteMusicDB";
 const DB_VERSION = 2;
 const STORE_NAME = "canciones";
 const PLAYLIST_STORE_NAME = "playlists";
 
+// Variables globales de la aplicación
 let db;
 let canciones = [];
 let playlists = [];
 let playlistActual = "default";
 
+// Abrir la base de datos
 const request = indexedDB.open(DB_NAME, DB_VERSION);
-console.log("REQUEST:", request);
-console.log("READY STATE:", request.readyState);
-
-setTimeout(() => {
-  console.log("Después de 1 segundo:");
-  console.log("DB:", db);
-  console.log("REQUEST READY STATE:", request.readyState);
-  console.log("REQUEST ERROR:", request.error);
-}, 1000);
-
-console.log("Intentando abrir IndexedDB:", DB_NAME, "versión:", DB_VERSION);
-
+// Crear o actualizar la estructura de la base de datos
 request.onupgradeneeded = (event) => {
-  console.log("🔥 ONUPGRADENEEDED ejecutado");
   const dbUpgrade = event.target.result;
   const transaction = event.target.transaction;
   let cancionesStore;
+  // Crear el almacén de canciones si no existe
   if (!dbUpgrade.objectStoreNames.contains(STORE_NAME)) {
-    console.log("Creando store canciones...");
     cancionesStore = dbUpgrade.createObjectStore(STORE_NAME, {
       keyPath: "id",
       autoIncrement: true,
@@ -35,26 +30,23 @@ request.onupgradeneeded = (event) => {
   } else {
     cancionesStore = transaction.objectStore(STORE_NAME);
   }
-
+  // Crear el almacén de playlists si no existe
   if (!dbUpgrade.objectStoreNames.contains(PLAYLIST_STORE_NAME)) {
-    console.log("Creando store playlists...");
     const playlistsStore = dbUpgrade.createObjectStore(PLAYLIST_STORE_NAME, {
       keyPath: "id",
     });
+    // Crear la playlist predeterminada
     playlistsStore.add({
       id: "default",
       nombre: "Mi playlist",
     });
   }
-
+  // Migrar las canciones antiguas a la playlist predeterminada
   if (event.oldVersion < 2) {
-    console.log("Migrando canciones a Mi playlist...");
     const cursorRequest = cancionesStore.openCursor();
     cursorRequest.onsuccess = (e) => {
       const cursor = e.target.result;
-      if (!cursor) {
-        return;
-      }
+      if (!cursor) return;
       const cancion = cursor.value;
       if (!cancion.playlistId) {
         cancion.playlistId = "default";
@@ -65,54 +57,66 @@ request.onupgradeneeded = (event) => {
   }
 };
 
+// Cuando la base de datos se abre correctamente
 request.onsuccess = (event) => {
-  console.log("🔥 ONSUCCESS EJECUTADO");
   db = event.target.result;
-  console.log("IndexedDB cargada correctamente");
-  console.log("Versión real:", db.version);
-  console.log("Stores:", Array.from(db.objectStoreNames));
+  console.log("Base de datos ByteMusic abierta correctamente.");
+  // Si se cierra la conexión desde otra pestaña o herramienta
+  db.onversionchange = () => {
+    db.close();
+    console.warn("La base de datos se ha cerrado por un cambio de versión.");
+  };
   cargarPlaylists();
 };
-
+// Si ocurre un error al abrir la base de datos
 request.onerror = () => {
-  console.error("❌ ERROR REAL DE INDEXEDDB");
-  console.error("Error:", request.error);
-  console.error("Nombre:", request.error?.name);
-  console.error("Mensaje:", request.error?.message);
+  console.error("Error al abrir IndexedDB:", request.error);
 };
-
+// Si otra pestaña impide actualizar la base de datos
 request.onblocked = () => {
-  console.error("❌ INDEXEDDB BLOQUEADA");
+  console.warn(
+    "La apertura de IndexedDB está bloqueada. Cierra otras pestañas de ByteMusic.",
+  );
 };
 
-/* =========================================================
-   ELEMENTOS DEL DOM
-   ========================================================= */
+/* ========================================
+   2. ELEMENTOS DEL DOM
+======================================== */
+
+/* ---------- Reproductor ---------- */
 
 const tituloCancion = document.querySelector("#reproductor-musica h6");
-const nombreArtista = document.querySelector("#nombre");
-const progreso = document.getElementById("progreso");
+const nombreArtista = document.getElementById("nombre");
 const cancion = document.getElementById("cancion");
+const progreso = document.getElementById("progreso");
 const controlVolumen = document.getElementById("control-volumen");
 const iconoControl = document.querySelector(".iconoControl");
 const botonReproducirPausar = document.querySelector(
   ".boton-reproducir-pausar",
 );
-const tarjeta = document.getElementById("tarjetaExito");
 const botonAtras = document.querySelector(".atras");
 const botonAdelante = document.querySelector(".adelante");
-const playListContainer = document.getElementById("playlist-container");
 const botonAleatorio = document.querySelector(".aleatorio");
 const botonRepetir = document.querySelector(".repetir");
 const divMinutos = document.getElementById("minutos");
-
+/* ---------- Lista de canciones ---------- */
+const playListContainer = document.getElementById("playlist-container");
+/* ---------- Playlists ---------- */
 const botonCrearPlaylist = document.getElementById("crear-playlist");
 const listaPlaylists = document.getElementById("lista-playlists");
+/* ---------- Modal de creación de playlist ---------- */
+const modalCrearPlaylist = document.getElementById("modalCrearPlaylist");
+const formularioPlaylist = document.getElementById("formCrearPlaylist");
+const inputNombrePlaylist = document.getElementById("nombrePlaylist");
+const errorNombrePlaylist = document.getElementById("errorNombrePlaylist");
+/* ---------- Mensaje de éxito ---------- */
+const tarjeta = document.getElementById("tarjetaExito");
 
 /* =========================================================
-   PLAYLISTS
+   3. GESTIÓN DE PLAYLISTS
    ========================================================= */
 
+/* ---------- Cargar playlists ---------- */
 function cargarPlaylists() {
   if (!db) {
     console.error("La base de datos todavía no está preparada.");
@@ -120,14 +124,10 @@ function cargarPlaylists() {
   }
   const transaction = db.transaction(PLAYLIST_STORE_NAME, "readonly");
   const store = transaction.objectStore(PLAYLIST_STORE_NAME);
-  const requestPlaylists = store.getAll();
-  requestPlaylists.onsuccess = () => {
-    playlists = requestPlaylists.result;
-
-    /*
-     * Por seguridad, si la base de datos no tiene
-     * ninguna playlist, creamos Mi playlist.
-     */
+  const request = store.getAll();
+  request.onsuccess = () => {
+    playlists = request.result;
+    // Si no hay playlists, crear la predeterminada
     if (playlists.length === 0) {
       crearPlaylistInicial();
       return;
@@ -135,83 +135,137 @@ function cargarPlaylists() {
     mostrarPlaylists();
     cargarCanciones();
   };
-  requestPlaylists.onerror = () => {
-    console.error("Error al cargar las playlists:", requestPlaylists.error);
+
+  request.onerror = () => {
+    console.error("Error al cargar las playlists:", request.error);
   };
 }
 
+/* ---------- Crear playlist inicial ---------- */
+
 function crearPlaylistInicial() {
+  if (!db) {
+    console.error("La base de datos todavía no está preparada.");
+    return;
+  }
   const playlistInicial = {
     id: "default",
     nombre: "Mi playlist",
   };
   const transaction = db.transaction(PLAYLIST_STORE_NAME, "readwrite");
   const store = transaction.objectStore(PLAYLIST_STORE_NAME);
-  const addRequest = store.add(playlistInicial);
-  addRequest.onsuccess = () => {
+  const request = store.add(playlistInicial);
+  request.onsuccess = () => {
     playlists = [playlistInicial];
     playlistActual = "default";
     mostrarPlaylists();
     cargarCanciones();
   };
-
-  addRequest.onerror = () => {
-    /*
-     * Si ya existe, simplemente continuamos.
-     */
-    playlists = [playlistInicial];
-    playlistActual = "default";
-    mostrarPlaylists();
-    cargarCanciones();
+  request.onerror = () => {
+    console.error("Error al crear la playlist inicial:", request.error);
   };
 }
 
-/* Mostrar las playlists en la barra lateral */
+/* ---------- Mostrar playlists en la interfaz ---------- */
+
 function mostrarPlaylists() {
+  if (!listaPlaylists) {
+    console.error("No se encuentra el contenedor de playlists.");
+    return;
+  }
   listaPlaylists.innerHTML = "";
   playlists.forEach((playlist) => {
-    const elemento = document.createElement("a");
-    elemento.href = "#";
-    elemento.classList.add("sidebar-item");
-    elemento.title = playlist.nombre;
-    elemento.innerHTML = `
-      <i class="bi bi-music-note-list"></i>
-      <span>${playlist.nombre}</span>
-    `;
-    elemento.addEventListener("click", (event) => {
+    const enlace = document.createElement("a");
+    enlace.href = "#";
+    enlace.classList.add("sidebar-item");
+    enlace.title = playlist.nombre;
+
+    // Crear el icono y el nombre por separado
+    const icono = document.createElement("i");
+    icono.className = "bi bi-music-note-list";
+
+    const nombre = document.createElement("span");
+    nombre.textContent = playlist.nombre;
+
+    enlace.appendChild(icono);
+    enlace.appendChild(nombre);
+    // Cambiar de playlist al pulsar
+    enlace.addEventListener("click", (event) => {
       event.preventDefault();
       seleccionarPlaylist(playlist.id);
     });
-    listaPlaylists.appendChild(elemento);
+    // Marcar visualmente la playlist seleccionada
+    if (playlist.id === playlistActual) {
+      enlace.classList.add("active");
+    }
+    listaPlaylists.appendChild(enlace);
   });
 }
-
-/* Seleccionar una playlist */
+/* ---------- Seleccionar playlist ---------- */
 function seleccionarPlaylist(id) {
-  const playlist = playlists.find((playlistItem) => playlistItem.id === id);
-  if (!playlist) {
+  const playlistSeleccionada = playlists.find((playlist) => playlist.id === id);
+  if (!playlistSeleccionada) {
+    console.error("No se ha encontrado la playlist:", id);
     return;
   }
   playlistActual = id;
-  console.log("Playlist seleccionada:", playlist.nombre);
-  document.querySelector(".playlist-header h2").textContent = playlist.nombre;
+  // Actualizar el título de la playlist
+  const tituloPlaylist = document.querySelector(".playlist-header h2");
+  if (tituloPlaylist) {
+    tituloPlaylist.textContent = playlistSeleccionada.nombre;
+  }
+  // Actualizar el estado visual de la barra lateral
+  mostrarPlaylists();
+  // Cargar las canciones de la playlist seleccionada
   cargarCanciones();
 }
 
 /* Crear una nueva playlist */
-botonCrearPlaylist.addEventListener("click", () => {
-  if (!db) {
-    console.error("La base de datos todavía no está preparada.");
-    return;
-  }
-  const nombre = prompt("Nombre de la nueva playlist:");
-  if (!nombre || nombre.trim() === "") {
-    return;
-  }
 
+/* Abrir el modal al pulsar el botón + */
+botonCrearPlaylist.addEventListener("click", () => {
+  errorNombrePlaylist.textContent = "";
+  const modal = bootstrap.Modal.getOrCreateInstance(modalCrearPlaylist);
+  modal.show();
+  // Colocar el cursor en el campo del nombre
+  modalCrearPlaylist.addEventListener(
+    "shown.bs.modal",
+    () => {
+      inputNombrePlaylist.focus();
+    },
+    { once: true },
+  );
+});
+
+/* Crear una playlist al enviar el formulario */
+formularioPlaylist.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (!db) {
+    errorNombrePlaylist.textContent =
+      "La base de datos todavía no está preparada.";
+    return;
+  }
+  const nombre = inputNombrePlaylist.value.trim();
+  // Comprobar que el nombre no esté vacío
+  if (nombre === "") {
+    errorNombrePlaylist.textContent = "Escribe un nombre para la playlist.";
+    inputNombrePlaylist.focus();
+    return;
+  }
+  // Evitar nombres duplicados
+  const nombreExiste = playlists.some(
+    (playlist) => playlist.nombre.toLowerCase() === nombre.toLowerCase(),
+  );
+
+  if (nombreExiste) {
+    errorNombrePlaylist.textContent = "Ya existe una playlist con ese nombre.";
+    inputNombrePlaylist.focus();
+    return;
+  }
   const nuevaPlaylist = {
     id: crypto.randomUUID(),
-    nombre: nombre.trim(),
+    nombre: nombre,
   };
   const transaction = db.transaction(PLAYLIST_STORE_NAME, "readwrite");
   const store = transaction.objectStore(PLAYLIST_STORE_NAME);
@@ -220,12 +274,24 @@ botonCrearPlaylist.addEventListener("click", () => {
     playlists.push(nuevaPlaylist);
     mostrarPlaylists();
     seleccionarPlaylist(nuevaPlaylist.id);
+    // Limpiar el formulario y cerrar el modal
+    formularioPlaylist.reset();
+    errorNombrePlaylist.textContent = "";
+    bootstrap.Modal.getOrCreateInstance(modalCrearPlaylist).hide();
     console.log("Playlist creada:", nuevaPlaylist.nombre);
   };
 
   addRequest.onerror = () => {
+    errorNombrePlaylist.textContent =
+      "No se ha podido crear la playlist. Inténtalo de nuevo.";
     console.error("Error al crear la playlist:", addRequest.error);
   };
+});
+
+/* Limpiar el formulario al cerrar el modal */
+modalCrearPlaylist.addEventListener("hidden.bs.modal", () => {
+  formularioPlaylist.reset();
+  errorNombrePlaylist.textContent = "";
 });
 
 /* =========================================================
@@ -233,54 +299,33 @@ botonCrearPlaylist.addEventListener("click", () => {
    ========================================================= */
 
 function cargarCanciones() {
-  if (!db) {
-    console.error("La base de datos todavía no está preparada.");
-    return;
-  }
+  if (!db) return;
 
-  const transaction = db.transaction(STORE_NAME, "readonly");
-  const store = transaction.objectStore(STORE_NAME);
-  const requestCanciones = store.getAll();
-  requestCanciones.onsuccess = () => {
-    /*
-     * Solo cogemos las canciones de la playlist actual.
-     */
-    canciones = requestCanciones.result
-      .filter(
-        (cancionItem) =>
-          (cancionItem.playlistId || "default") === playlistActual,
-      )
+  const request = db
+    .transaction(STORE_NAME, "readonly")
+    .objectStore(STORE_NAME)
+    .getAll();
+
+  request.onsuccess = () => {
+    canciones = request.result
+      .filter((c) => (c.playlistId || "default") === playlistActual)
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
-      .map((cancionItem) => ({
-        ...cancionItem,
-        fuente: URL.createObjectURL(cancionItem.archivo),
-      }));
+      .map((c) => ({ ...c, fuente: URL.createObjectURL(c.archivo) }));
+
     actualizarPlaylist();
     inicializarSortable();
-    /*
-     * Si hay canciones, cargamos la primera.
-     */
-    if (canciones.length > 0) {
-      if (indiceCancionActual >= canciones.length) {
-        indiceCancionActual = 0;
-      }
-    }
-  };
 
-  requestCanciones.onerror = () => {
-    console.error("Error al cargar canciones:", requestCanciones.error);
+    if (indiceCancionActual >= canciones.length) {
+      indiceCancionActual = 0;
+    }
   };
 }
 
-/* =========================================================
-   SARA
-   ========================================================= */
-
-function Sara() {
+function comprobarAnchura() {
   const contenedor = document.querySelector(".titulo-container");
   if (tituloCancion.scrollWidth > contenedor.clientWidth) {
     tituloCancion.classList.add("scroll");
-    console.log("hshshshs" + tituloCancion.classList);
+    console.log("Anchura del título:" + tituloCancion.classList);
   } else {
     tituloCancion.classList.remove("scroll");
   }
@@ -302,70 +347,53 @@ function cerrarTarjeta() {
    AÑADIR CANCIONES
    ========================================================= */
 
-document
-  .getElementById("musica-input")
-  .addEventListener("change", function (e) {
-    if (!db) {
-      console.error("La base de datos todavía no está preparada.");
-      return;
-    }
+/* ===== 5. AÑADIR CANCIONES ===== */
 
-    const files = Array.from(e.target.files);
-    files.forEach((file) => {
-      const url = URL.createObjectURL(file);
-      const nombreCancion = file.name.replace(/\.[^/.]+$/, "");
-      const separacionArchivo = nombreCancion.split("-");
-      const parteAntesDelGuion = separacionArchivo[0];
-      const parteDespuesDelGuion = separacionArchivo.slice(1).join("-");
-      const datosCancion = {
-        titulo: parteDespuesDelGuion || "Titulo Desconocido",
-        nombre: parteAntesDelGuion || "Artista desconocido",
-        archivo: file,
-        imagenUrl:
-          "https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg",
-        /*
-         * MUY IMPORTANTE:
-         * guardamos en qué playlist está.
-         */
-        playlistId: playlistActual,
-        /*
-         * Ponemos la canción al final.
-         */
-        orden: canciones.length,
-      };
+document.getElementById("musica-input").addEventListener("change", (e) => {
+  if (!db) return;
 
-      const transaction = db.transaction(STORE_NAME, "readwrite");
-      const store = transaction.objectStore(STORE_NAME);
-      const addRequest = store.add(datosCancion);
-      addRequest.onsuccess = () => {
-        /*
-         * El ID lo genera IndexedDB.
-         */
-        canciones.push({
-          ...datosCancion,
-          id: addRequest.result,
-          fuente: url,
-        });
-        actualizarPlaylist();
-        /*
-         * Si es la primera canción de la playlist,
-         * la cargamos en el reproductor.
-         */
-        if (canciones.length === 1) {
-          indiceCancionActual = 0;
-          actualizarInfoCancion();
-        }
-      };
-    });
+  const archivos = Array.from(e.target.files);
 
-    console.log("Se han añadido correctamente");
-    sacarTargeta();
-    /*
-     * Limpiamos el input para poder volver
-     * a seleccionar el mismo archivo.
-     */
-    e.target.value = "";
+  archivos.forEach((archivo) => {
+    const nombreArchivo = archivo.name.replace(/\.[^/.]+$/, "");
+    const partes = nombreArchivo.split("-");
+    const datosCancion = {
+      titulo: partes.slice(1).join("-").trim() || "Título desconocido",
+      nombre: partes[0].trim() || "Artista desconocido",
+      archivo,
+      imagenUrl:
+        "https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg",
+      playlistId: playlistActual,
+      orden: canciones.length,
+    };
+
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const request = transaction.objectStore(STORE_NAME).add(datosCancion);
+
+    request.onsuccess = () => {
+      canciones.push({
+        ...datosCancion,
+        id: request.result,
+        fuente: URL.createObjectURL(archivo),
+      });
+
+      actualizarPlaylist();
+
+      if (canciones.length === 1) {
+        indiceCancionActual = 0;
+        actualizarInfoCancion();
+      }
+    };
+
+    request.onerror = () => {
+      console.error(`No se pudo importar ${archivo.name}:`, request.error);
+    };
   });
+
+  if (archivos.length > 0) sacarTargeta();
+
+  e.target.value = "";
+});
 
 /* =========================================================
    MOSTRAR PLAYLIST
@@ -373,56 +401,46 @@ document
 
 function actualizarPlaylist() {
   playListContainer.innerHTML = "";
-
   if (canciones.length === 0) {
-    const liVacia = document.createElement("li");
-    liVacia.id = "playlist-vacia";
-    liVacia.textContent = "Todavía no has añadido ninguna canción";
-    playListContainer.appendChild(liVacia);
+    const li = document.createElement("li");
+    li.id = "playlist-vacia";
+    li.textContent = "Todavía no has añadido ninguna canción";
+    playListContainer.appendChild(li);
     return;
   }
 
-  canciones.forEach((cancionItem, index) => {
+  canciones.forEach((c, index) => {
     const li = document.createElement("li");
     li.dataset.index = index;
     const img = document.createElement("img");
-
-    img.src = cancionItem.imagenUrl;
-    img.style.borderRadius = "15px";
-    img.style.marginRight = "5px";
+    img.src = c.imagenUrl;
+    img.style.cssText = "border-radius: 15px; margin-right: 5px;";
     img.classList.add("active");
     const span = document.createElement("span");
-    span.textContent = `${cancionItem.titulo} - ${cancionItem.nombre}`;
+    span.textContent = `${c.titulo} - ${c.nombre}`;
     const botonBorrar = document.createElement("button");
     botonBorrar.innerHTML = '<i class="bi bi-trash3"></i>';
     botonBorrar.classList.add("boton-borrar");
+    botonBorrar.addEventListener("click", (event) => {
+      event.stopPropagation();
+      borrarCancion(c.id);
+    });
     const botonMover = document.createElement("button");
     botonMover.innerHTML = '<i class="bi bi-grip-vertical"></i>';
     botonMover.classList.add("boton-mover");
-    botonMover.classList.add("boton-mover");
-    botonBorrar.addEventListener("click", (event) => {
-      event.stopPropagation();
-      borrarCancion(cancionItem.id);
-    });
-    li.appendChild(img);
-    li.appendChild(span);
-    li.appendChild(botonBorrar);
-    li.appendChild(botonMover);
     li.onclick = () => {
       indiceCancionActual = index;
       actualizarInfoCancion();
       reproducirCancion();
-      Sara();
+      comprobarAnchura();
     };
-
     if (index === indiceCancionActual) {
-      const divReproduciendo = document.createElement("div");
-      divReproduciendo.classList.add("loader");
-      span.appendChild(divReproduciendo);
+      const loader = document.createElement("div");
+      loader.classList.add("loader");
+      span.appendChild(loader);
       li.classList.add("active");
-      console.log("hola esto esta reproduciendo");
     }
-
+    li.append(img, span, botonBorrar, botonMover);
     playListContainer.appendChild(li);
   });
 }
@@ -463,22 +481,15 @@ let modoRepetir = false;
    ========================================================= */
 
 function actualizarInfoCancion() {
-  /*
-   * Evita el error:
-   * Cannot read properties of undefined
-   */
   if (canciones.length === 0 || !canciones[indiceCancionActual]) {
     return;
   }
-
-  console.log("esta es mi funcion2");
   tituloCancion.textContent = canciones[indiceCancionActual].titulo;
   nombreArtista.textContent = canciones[indiceCancionActual].nombre;
   cancion.src = canciones[indiceCancionActual].fuente;
   cancion.loop = modoRepetir;
   actualizarPlaylist();
-  Sara();
-
+  comprobarAnchura();
   cancion.addEventListener("loadeddata", function () {});
 }
 
@@ -720,7 +731,6 @@ function inicializarSortable() {
       const store = transaction.objectStore(STORE_NAME);
       canciones.forEach((cancionItem, index) => {
         cancionItem.orden = index;
-
         store.put(cancionItem);
       });
     },

@@ -63,9 +63,7 @@
         style="display: none">
         <div class="alert" style="max-width: 18rem">
           <i class="bi bi-check-circle"></i>
-          <div class="card-header d-flex justify-content-center">
-            <h4 class="alert-heading">Éxito</h4>
-          </div>
+          <div class="card-header d-flex justify-content-center"></div>
           <div class="card-body justify-content-center mx-auto text-center">
             <p class="card-title">
               Las canciones se han descargado correctamente
@@ -275,6 +273,66 @@
       <p>Este es el espacio principal donde va el contenido. El navbar se mantiene fijo a la izquierda.</p>
       <p>Desplázate para ver que el navbar no se mueve.</p>
       <p style="height: 1000px;">(Espacio para hacer scroll y probar el navbar fijo)</p> -->
+    </div>
+    <!-- MODAL PARA CREAR PLAYLIST -->
+    <div
+      class="modal fade"
+      id="modalCrearPlaylist"
+      tabindex="-1"
+      aria-labelledby="tituloModalPlaylist"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-playlist">
+          <div class="modal-header">
+            <h5 class="modal-title" id="tituloModalPlaylist">
+              <i class="bi bi-music-note-list"></i>
+              Nueva playlist
+            </h5>
+
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"></button>
+          </div>
+
+          <form id="formCrearPlaylist">
+            <div class="modal-body">
+              <label for="nombrePlaylist" class="form-label">
+                Nombre de la playlist
+              </label>
+
+              <input
+                type="text"
+                class="form-control input-playlist"
+                id="nombrePlaylist"
+                placeholder="Ej. Música favorita"
+                maxlength="50"
+                required
+                autocomplete="off" />
+
+              <div
+                id="errorNombrePlaylist"
+                class="error-playlist"
+                role="alert"></div>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-cancelar-playlist"
+                data-bs-dismiss="modal">
+                Cancelar
+              </button>
+
+              <button type="submit" class="btn btn-crear-playlist">
+                <i class="bi bi-plus-lg"></i>
+                Crear playlist
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <script src="app.js"></script>
