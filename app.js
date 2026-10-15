@@ -270,7 +270,11 @@ function cargarPlaylists() {
   const req = store.getAll();
 
   req.onsuccess = () => {
-    playlists = req.result;
+    playlists = req.result.sort((a, b) => {
+      if (a.id === "default") return -1;
+      if (b.id === "default") return 1;
+      return 0;
+    });
 
     if (playlists.length === 0) {
       crearPlaylistInicial();
