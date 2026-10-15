@@ -28,6 +28,53 @@ let modoAleatorio = false;
 let modoRepetir = false;
 
 /* ========================================
+   PORTADAS
+======================================== */
+
+// Colores para las portadas generadas
+const PALETAS = [
+  ["#10cad5", "#7c5cff"],
+  ["#ff6b81", "#ff9f43"],
+  ["#43e97b", "#10cad5"],
+  ["#7c5cff", "#e94f9f"],
+  ["#f6d365", "#fda085"],
+  ["#2193b0", "#6dd5ed"],
+];
+
+// Portada con degradado y nota musical (el mismo texto da siempre los mismos colores)
+function generarPortada(texto = "") {
+  let h = 0;
+  for (const ch of texto) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+
+  return "https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg";
+}
+
+// Lee la portada incrustada en el archivo de audio (devuelve un Blob o null)
+function leerPortada(archivo) {
+  return new Promise((resolve) => {
+    if (!window.jsmediatags) return resolve(null);
+
+    window.jsmediatags.read(archivo, {
+      onSuccess: (tag) => {
+        const pic = tag.tags.picture;
+        if (!pic) return resolve(null);
+        resolve(
+          new Blob([new Uint8Array(pic.data)], {
+            type: pic.format || "image/jpeg",
+          }),
+        );
+      },
+      onError: () => resolve(null),
+    });
+  });
+}
+
+// Portada real si existe; si no, la generada
+function portadaDe(c) {
+  return c.portadaUrl || generarPortada(c.titulo + c.nombre);
+}
+
+/* ========================================
    ABRIR LA BASE DE DATOS
 ======================================== */
 
@@ -96,6 +143,7 @@ request.onblocked = () => {
 /* ---------- Reproductor ---------- */
 const tituloCancion = document.querySelector("#reproductor-musica h6");
 const nombreArtista = document.getElementById("nombre");
+const portadaActual = document.getElementById("portada-actual");
 const cancion = document.getElementById("cancion");
 const progreso = document.getElementById("progreso");
 const controlVolumen = document.getElementById("control-volumen");
@@ -115,6 +163,7 @@ const playListContainer = document.getElementById("playlist-container");
 /* ---------- Cabecera de la playlist ---------- */
 const plNombre = document.getElementById("pl-nombre");
 const plTotal = document.getElementById("pl-total");
+const plPortada = document.getElementById("pl-portada");
 
 /* ---------- Playlists ---------- */
 const botonCrearPlaylist = document.getElementById("crear-playlist");
@@ -128,6 +177,20 @@ const errorNombrePlaylist = document.getElementById("errorNombrePlaylist");
 
 /* ---------- Mensaje de éxito ---------- */
 const tarjeta = document.getElementById("tarjetaExito");
+
+/* ---------- Portadas iniciales (hasta que haya canción o playlist cargada) ---------- */
+if (portadaActual) portadaActual.src = generarPortada("ByteMusic");
+if (plPortada) plPortada.src = generarPortada("Mi playlist");
+
+function actualizarPortadaPlaylist(nombre) {
+  if (plPortada) plPortada.src = generarPortada(nombre);
+}
+
+function actualizarPortadaReproductor() {
+  if (!portadaActual) return;
+  const actual = cola[indiceCancionActual];
+  portadaActual.src = actual ? portadaDe(actual) : generarPortada("ByteMusic");
+}
 
 /* =========================================================
    3. COLA DE REPRODUCCIÓN
@@ -158,7 +221,7 @@ const botonHeaderAleatorio = document.getElementById("pl-aleatorio");
 botonHeaderAleatorio?.addEventListener("click", () => {
   botonAleatorio.click(); // activa o desactiva el modo aleatorio
 
-  // Si activas el aleatorio en una playlist que no suena, empieza por una al azar
+  // Si lo activas en una playlist que no suena, empieza por una al azar
   if (
     modoAleatorio &&
     playlistReproduciendo !== playlistActual &&
@@ -194,7 +257,10 @@ function cargarPlaylists() {
     }
 
     const activa = playlists.find((p) => p.id === playlistActual);
-    if (activa && plNombre) plNombre.textContent = activa.nombre;
+    if (activa && plNombre) {
+      plNombre.textContent = activa.nombre;
+      actualizarPortadaPlaylist(activa.nombre);
+    }
 
     mostrarPlaylists();
     cargarCanciones();
@@ -218,6 +284,7 @@ function crearPlaylistInicial() {
     playlists = [playlistInicial];
     playlistActual = "default";
     if (plNombre) plNombre.textContent = playlistInicial.nombre;
+    actualizarPortadaPlaylist(playlistInicial.nombre);
     mostrarPlaylists();
     cargarCanciones();
   };
@@ -268,6 +335,7 @@ function seleccionarPlaylist(id) {
 
   playlistActual = id;
   if (plNombre) plNombre.textContent = seleccionada.nombre;
+  actualizarPortadaPlaylist(seleccionada.nombre);
 
   mostrarPlaylists();
   cargarCanciones();
@@ -367,19 +435,60 @@ function cargarCanciones() {
 
   req.onsuccess = () => {
     // Liberar las URLs antiguas que no se estén usando en la cola
-    const enCola = new Set(cola.map((c) => c.fuente));
+    const urlsEnCola = new Set(cola.flatMap((c) => [c.fuente, c.portadaUrl]));
     canciones.forEach((c) => {
-      if (!enCola.has(c.fuente)) URL.revokeObjectURL(c.fuente);
+      if (!urlsEnCola.has(c.fuente)) URL.revokeObjectURL(c.fuente);
+      if (c.portadaUrl && !urlsEnCola.has(c.portadaUrl)) {
+        URL.revokeObjectURL(c.portadaUrl);
+      }
     });
 
     canciones = req.result
       .filter((c) => (c.playlistId || "default") === playlistActual)
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
-      .map((c) => ({ ...c, fuente: URL.createObjectURL(c.archivo) }));
+      .map((c) => ({
+        ...c,
+        fuente: URL.createObjectURL(c.archivo),
+        portadaUrl: c.portada ? URL.createObjectURL(c.portada) : null,
+      }));
 
     actualizarPlaylist();
     inicializarSortable();
+    completarPortadas();
   };
+}
+
+// Busca la portada de las canciones guardadas que todavía no se han comprobado
+function completarPortadas() {
+  canciones.forEach((c) => {
+    if (c.portada !== undefined) return; // ya comprobada
+
+    leerPortada(c.archivo).then((portada) => {
+      console.log(`${c.titulo}: ${portada ? "con portada" : "sin portada"}`);
+
+      c.portada = portada;
+      if (portada) c.portadaUrl = URL.createObjectURL(portada);
+
+      // Guardar el resultado para no volver a comprobarlo
+      if (db) {
+        const store = db
+          .transaction(STORE_NAME, "readwrite")
+          .objectStore(STORE_NAME);
+        const get = store.get(c.id);
+        get.onsuccess = () => {
+          if (get.result) {
+            get.result.portada = portada;
+            store.put(get.result);
+          }
+        };
+      }
+
+      if (canciones.includes(c) || cola.includes(c)) {
+        actualizarPlaylist();
+        actualizarPortadaReproductor();
+      }
+    });
+  });
 }
 
 function comprobarAnchura() {
@@ -413,54 +522,61 @@ document.getElementById("musica-input").addEventListener("change", (e) => {
   if (!db) return;
 
   const archivos = Array.from(e.target.files);
+  const ordenBase = canciones.length;
 
   archivos.forEach((archivo, i) => {
-    const nombreArchivo = archivo.name.replace(/\.[^/.]+$/, "");
-    const partes = nombreArchivo.split("-");
+    leerPortada(archivo).then((portada) => {
+      console.log(
+        `${archivo.name}: ${portada ? "con portada" : "sin portada"}`,
+      );
 
-    const datosCancion = {
-      titulo: partes.slice(1).join("-").trim() || "Título desconocido",
-      nombre: partes[0].trim() || "Artista desconocido",
-      archivo,
-      imagenUrl:
-        "https://img.freepik.com/fotos-premium/chica-anime-escuchando-musica-noche-lofi-triste_911078-5774.jpg",
-      playlistId: playlistActual,
-      orden: canciones.length + i,
-    };
+      const nombreArchivo = archivo.name.replace(/\.[^/.]+$/, "");
+      const partes = nombreArchivo.split("-");
 
-    const store = db
-      .transaction(STORE_NAME, "readwrite")
-      .objectStore(STORE_NAME);
-    const addRequest = store.add(datosCancion);
-
-    addRequest.onsuccess = () => {
-      const nueva = {
-        ...datosCancion,
-        id: addRequest.result,
-        fuente: URL.createObjectURL(archivo),
+      const datosCancion = {
+        titulo: partes.slice(1).join("-").trim() || "Título desconocido",
+        nombre: partes[0].trim() || "Artista desconocido",
+        archivo,
+        portada, // Blob o null
+        playlistId: playlistActual,
+        orden: ordenBase + i,
       };
 
-      canciones.push(nueva);
+      const store = db
+        .transaction(STORE_NAME, "readwrite")
+        .objectStore(STORE_NAME);
+      const addRequest = store.add(datosCancion);
 
-      // Si esta playlist es la que suena, la canción entra también en la cola
-      if (playlistReproduciendo === playlistActual) {
-        cola.push(nueva);
-      }
+      addRequest.onsuccess = () => {
+        const nueva = {
+          ...datosCancion,
+          id: addRequest.result,
+          fuente: URL.createObjectURL(archivo),
+          portadaUrl: portada ? URL.createObjectURL(portada) : null,
+        };
 
-      // Si no había nada preparado en el reproductor, carga la primera
-      if (cola.length === 0) {
-        cola = [...canciones];
-        playlistReproduciendo = playlistActual;
-        indiceCancionActual = 0;
-        actualizarInfoCancion();
-      } else {
-        actualizarPlaylist();
-      }
-    };
+        canciones.push(nueva);
 
-    addRequest.onerror = () => {
-      console.error(`No se pudo importar ${archivo.name}:`, addRequest.error);
-    };
+        // Si esta playlist es la que suena, la canción entra también en la cola
+        if (playlistReproduciendo === playlistActual) {
+          cola.push(nueva);
+        }
+
+        // Si no había nada preparado en el reproductor, carga la primera
+        if (cola.length === 0) {
+          cola = [...canciones];
+          playlistReproduciendo = playlistActual;
+          indiceCancionActual = 0;
+          actualizarInfoCancion();
+        } else {
+          actualizarPlaylist();
+        }
+      };
+
+      addRequest.onerror = () => {
+        console.error(`No se pudo importar ${archivo.name}:`, addRequest.error);
+      };
+    });
   });
 
   if (archivos.length > 0) sacarTargeta();
@@ -496,7 +612,10 @@ function actualizarPlaylist() {
     li.dataset.index = index;
 
     const img = document.createElement("img");
-    img.src = c.imagenUrl;
+    img.src = portadaDe(c);
+    img.title = c.portadaUrl
+      ? "Portada del archivo"
+      : "Este archivo no trae portada";
     img.style.cssText = "border-radius: 15px; margin-right: 5px;";
     img.classList.add("active");
 
@@ -565,6 +684,7 @@ function borrarCancion(id) {
           cancion.load();
           tituloCancion.textContent = "Titulo";
           nombreArtista.textContent = "Nombre";
+          actualizarPortadaReproductor();
         }
       } else {
         // Se ha borrado otra: recolocar el índice de la que sigue sonando
@@ -589,6 +709,7 @@ function actualizarInfoCancion() {
 
   tituloCancion.textContent = actual.titulo;
   nombreArtista.textContent = actual.nombre;
+  actualizarPortadaReproductor();
   cancion.src = actual.fuente;
   cancion.loop = modoRepetir;
 
@@ -788,7 +909,7 @@ function inicializarSortable() {
         );
       }
 
-      // Guardar el nuevo orden (sin la URL temporal)
+      // Guardar el nuevo orden (sin las URLs temporales)
       if (db) {
         const store = db
           .transaction(STORE_NAME, "readwrite")
@@ -796,7 +917,7 @@ function inicializarSortable() {
 
         canciones.forEach((item, index) => {
           item.orden = index;
-          const { fuente, ...datos } = item;
+          const { fuente, portadaUrl, ...datos } = item;
           store.put(datos);
         });
       }

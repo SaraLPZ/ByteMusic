@@ -543,11 +543,13 @@ h4 {
 }
 
 #contenedorImgTitle img {
-  width: 60px;
-  height: 60px;
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
   margin-top: 5px;
   margin-left: 30px;
   border-radius: 10px;
+  object-fit: cover;
 }
 
 #titulo-artista {
@@ -558,11 +560,11 @@ h4 {
   overflow: hidden;
   background: transparent;
   color: #ffffff;
+  margin-left: 20px;
 }
 
-#titulo-artista h6 {
+#titulo-artista #titulo-cancion {
   margin-top: 8px;
-  margin-left: 20px;
   background: transparent;
   color: #ffffff;
   font-family: var(--fuente-principal);
@@ -572,7 +574,6 @@ h4 {
 #titulo-artista #nombre {
   overflow: hidden;
   margin-bottom: 5px;
-  margin-left: 20px;
   padding-right: 10px;
   background: transparent;
   color: grey !important;
