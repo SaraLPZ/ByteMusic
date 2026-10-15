@@ -1075,3 +1075,43 @@ h4 {
     justify-content: center;
   }
 }
+
+.sidebar-playlist {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.sidebar-playlist .sidebar-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.boton-borrar-playlist {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.2s,
+    color 0.2s,
+    background 0.2s;
+}
+
+.sidebar-playlist:hover .boton-borrar-playlist,
+.sidebar-playlist:focus-within .boton-borrar-playlist {
+  opacity: 1;
+}
+
+.boton-borrar-playlist:hover {
+  color: #ff6b81;
+  background: rgba(255, 107, 129, 0.12);
+}

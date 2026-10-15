@@ -3,7 +3,7 @@
 ======================================== */
 
 const DB_NAME = "ByteMusicDB";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_NAME = "canciones";
 const PLAYLIST_STORE_NAME = "playlists";
 
@@ -112,6 +112,27 @@ request.onupgradeneeded = (event) => {
         c.playlistId = "default";
         cursor.update(c);
       }
+      cursor.continue();
+    };
+  }
+  // Migrar las canciones de la versión 2 a la versión 3
+  if (event.oldVersion < 3) {
+    const cursorRequest = cancionesStore.openCursor();
+
+    cursorRequest.onsuccess = (e) => {
+      const cursor = e.target.result;
+      if (!cursor) return;
+
+      const c = cursor.value;
+
+      // Convertir el playlistId antiguo en una lista playlistIds
+      if (!Array.isArray(c.playlistIds)) {
+        c.playlistIds = [c.playlistId || "default"];
+      }
+
+      delete c.playlistId;
+
+      cursor.update(c);
       cursor.continue();
     };
   }
@@ -300,6 +321,9 @@ function mostrarPlaylists() {
   listaPlaylists.innerHTML = "";
 
   playlists.forEach((playlist) => {
+    const contenedor = document.createElement("div");
+    contenedor.classList.add("sidebar-playlist");
+
     const enlace = document.createElement("a");
     enlace.href = "#";
     enlace.classList.add("sidebar-item");
@@ -322,7 +346,27 @@ function mostrarPlaylists() {
       enlace.classList.add("active");
     }
 
-    listaPlaylists.appendChild(enlace);
+    contenedor.appendChild(enlace);
+
+    // No permitir eliminar la playlist predeterminada
+    if (playlist.id !== "default") {
+      const botonEliminar = document.createElement("button");
+      botonEliminar.type = "button";
+      botonEliminar.classList.add("boton-borrar-playlist");
+      botonEliminar.title = "Eliminar playlist";
+      botonEliminar.setAttribute("aria-label", `Eliminar ${playlist.nombre}`);
+      botonEliminar.innerHTML = '<i class="bi bi-trash3"></i>';
+
+      botonEliminar.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        eliminarPlaylist(playlist.id);
+      });
+
+      contenedor.appendChild(botonEliminar);
+    }
+
+    listaPlaylists.appendChild(contenedor);
   });
 }
 
@@ -444,7 +488,11 @@ function cargarCanciones() {
     });
 
     canciones = req.result
-      .filter((c) => (c.playlistId || "default") === playlistActual)
+      .filter((c) =>
+        Array.isArray(c.playlistIds)
+          ? c.playlistIds.includes(playlistActual)
+          : (c.playlistId || "default") === playlistActual,
+      )
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((c) => ({
         ...c,
@@ -538,7 +586,7 @@ document.getElementById("musica-input").addEventListener("change", (e) => {
         nombre: partes[0].trim() || "Artista desconocido",
         archivo,
         portada, // Blob o null
-        playlistId: playlistActual,
+        playlistIds: [playlistActual],
         orden: ordenBase + i,
       };
 
@@ -583,6 +631,88 @@ document.getElementById("musica-input").addEventListener("change", (e) => {
 
   e.target.value = "";
 });
+/* Eliminar playlist */
+
+function eliminarPlaylist(id) {
+  if (!db || id === "default") return;
+
+  const playlist = playlists.find((p) => p.id === id);
+  if (!playlist) return;
+
+  const confirmar = confirm(
+    `¿Quieres eliminar la playlist "${playlist.nombre}" y quitar de ella todas sus canciones?\n\nLas canciones que pertenezcan a otras playlists se conservarán.`,
+  );
+
+  if (!confirmar) return;
+
+  const transaction = db.transaction(
+    [PLAYLIST_STORE_NAME, STORE_NAME],
+    "readwrite",
+  );
+
+  const playlistsStore = transaction.objectStore(PLAYLIST_STORE_NAME);
+  const cancionesStore = transaction.objectStore(STORE_NAME);
+
+  const requestCanciones = cancionesStore.getAll();
+
+  requestCanciones.onsuccess = () => {
+    requestCanciones.result.forEach((c) => {
+      const ids = Array.isArray(c.playlistIds)
+        ? c.playlistIds
+        : [c.playlistId || "default"];
+
+      if (!ids.includes(id)) return;
+
+      const nuevosIds = ids.filter((playlistId) => playlistId !== id);
+
+      // Si no pertenece a ninguna otra playlist, borrar la canción.
+      if (nuevosIds.length === 0) {
+        cancionesStore.delete(c.id);
+      } else {
+        c.playlistIds = nuevosIds;
+        delete c.playlistId;
+        cancionesStore.put(c);
+      }
+    });
+
+    playlistsStore.delete(id);
+  };
+
+  transaction.oncomplete = () => {
+    const estabaSeleccionada = playlistActual === id;
+    const estabaSonando = playlistReproduciendo === id;
+
+    playlists = playlists.filter((p) => p.id !== id);
+
+    if (estabaSeleccionada) {
+      playlistActual = "default";
+    }
+
+    if (estabaSonando) {
+      pausarCancion();
+      cola = [];
+      playlistReproduciendo = null;
+      indiceCancionActual = 0;
+      cancion.removeAttribute("src");
+      cancion.load();
+      tituloCancion.textContent = "Título";
+      nombreArtista.textContent = "Artista";
+      actualizarPortadaReproductor();
+    }
+
+    mostrarPlaylists();
+
+    if (estabaSeleccionada || estabaSonando) {
+      seleccionarPlaylist(playlistActual);
+    } else {
+      cargarCanciones();
+    }
+  };
+
+  transaction.onerror = () => {
+    console.error("No se pudo eliminar la playlist:", transaction.error);
+  };
+}
 
 /* =========================================================
    8. MOSTRAR LA LISTA DE CANCIONES
